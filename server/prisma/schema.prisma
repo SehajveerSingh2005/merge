@@ -225,5 +225,5 @@ model NewsItem {
   thumbnail   String?
   source      String   @default("hackernews")
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now()) @updatedAt
 }
