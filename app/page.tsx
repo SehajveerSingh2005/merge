@@ -34,9 +34,6 @@ export default function LandingPage() {
                 <Minus className="h-2 w-2 text-background" />
               </div>
               <span className="text-base font-light tracking-[0.2em]">MERGE</span>
-              <div className="hidden md:block text-xs font-mono text-muted-foreground/50">
-                v1.0.0
-              </div>
             </div>
             <nav className="hidden lg:flex items-center space-x-16">
               <Link href="#platform" className="text-xs font-light text-muted-foreground hover:text-foreground transition-colors uppercase tracking-[0.15em]">

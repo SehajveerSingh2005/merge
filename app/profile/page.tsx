@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Navbar } from "@/components/navbar";
 import { 
   Code2, 
   MapPin, 
@@ -12,259 +13,387 @@ import {
   GitFork,
   ExternalLink,
   Github,
-  Settings
+  Settings,
+  MessageCircle,
+  Heart,
+  Plus
 } from "lucide-react";
 import Link from "next/link";
 
-// Mock user data
+// Enhanced mock user data
 const mockUser = {
-  name: "John Developer",
-  username: "johndev",
-  bio: "Full-stack developer passionate about React, TypeScript, and building great user experiences. Open source contributor and tech blogger.",
+  name: "Jordan Chen",
+  username: "jordan_builds",
+  bio: "Full-stack developer passionate about creating beautiful, functional experiences. Obsessed with clean code and thoughtful design.",
   location: "San Francisco, CA",
-  website: "https://johndev.com",
+  website: "https://jordanchen.dev",
   joinedDate: "March 2023",
   avatar: "/api/placeholder/120/120",
-  followers: 1247,
-  following: 892,
+  followers: 2847,
+  following: 1234,
   githubStats: {
-    publicRepos: 42,
-    contributions: 1337,
-    stars: 2156
-  }
+    publicRepos: 47,
+    contributions: 2156,
+    stars: 3892
+  },
+  skills: ["React", "TypeScript", "Node.js", "Python", "Design Systems", "WebGL"]
 };
 
 const mockProjects = [
   {
     id: 1,
-    name: "react-dashboard",
-    description: "A modern dashboard built with React and TypeScript",
-    stars: 234,
-    forks: 45,
+    name: "neural-canvas",
+    description: "Interactive neural network visualization tool built with Three.js and WebGL shaders. Real-time training visualization.",
+    stars: 2341,
+    forks: 234,
     language: "TypeScript",
-    updatedAt: "2 days ago"
+    updatedAt: "2 days ago",
+    featured: true,
+    tags: ["WebGL", "Three.js", "Neural Networks"]
   },
   {
     id: 2,
-    name: "api-toolkit",
-    description: "Utility library for building REST APIs with Node.js",
-    stars: 156,
-    forks: 23,
-    language: "JavaScript",
-    updatedAt: "1 week ago"
+    name: "design-system-kit",
+    description: "Comprehensive design system with React components, tokens, and documentation. Built for scale.",
+    stars: 1876,
+    forks: 156,
+    language: "TypeScript",
+    updatedAt: "1 week ago",
+    featured: true,
+    tags: ["React", "Design System", "Storybook"]
   },
   {
     id: 3,
-    name: "css-animations",
-    description: "Collection of smooth CSS animations and transitions",
-    stars: 89,
-    forks: 12,
-    language: "CSS",
-    updatedAt: "2 weeks ago"
+    name: "api-orchestrator",
+    description: "Lightweight API orchestration layer with caching, rate limiting, and real-time monitoring.",
+    stars: 892,
+    forks: 89,
+    language: "Node.js",
+    updatedAt: "3 days ago",
+    featured: false,
+    tags: ["Node.js", "API", "Microservices"]
   }
 ];
 
 const mockBlogs = [
   {
     id: 1,
-    title: "Building Scalable React Applications",
-    excerpt: "Learn the best practices for structuring large React applications...",
-    publishedAt: "3 days ago",
-    readTime: "8 min read",
-    likes: 124
+    title: "The Philosophy of Clean Code",
+    excerpt: "Exploring why readable code matters more than clever code, and how it impacts team productivity and maintainability.",
+    publishedAt: "5 days ago",
+    readTime: "12 min read",
+    likes: 234,
+    comments: 45,
+    tags: ["Clean Code", "Philosophy", "Best Practices"]
   },
   {
     id: 2,
-    title: "TypeScript Tips for Better Code",
-    excerpt: "Advanced TypeScript techniques that will improve your development workflow...",
-    publishedAt: "1 week ago",
-    readTime: "6 min read",
-    likes: 89
+    title: "Building Performant WebGL Applications",
+    excerpt: "Deep dive into WebGL optimization techniques, from shader compilation to memory management and rendering pipelines.",
+    publishedAt: "2 weeks ago",
+    readTime: "18 min read",
+    likes: 189,
+    comments: 32,
+    tags: ["WebGL", "Performance", "Graphics"]
+  },
+  {
+    id: 3,
+    title: "Design Systems at Scale",
+    excerpt: "Lessons learned from building and maintaining design systems across multiple products and teams.",
+    publishedAt: "1 month ago",
+    readTime: "15 min read",
+    likes: 156,
+    comments: 28,
+    tags: ["Design Systems", "Scale", "Team Collaboration"]
+  }
+];
+
+const mockActivity = [
+  {
+    id: 1,
+    type: "star",
+    action: "starred",
+    target: "react-three-fiber",
+    timeAgo: "2 hours ago"
+  },
+  {
+    id: 2,
+    type: "commit",
+    action: "pushed to",
+    target: "neural-canvas",
+    timeAgo: "6 hours ago"
+  },
+  {
+    id: 3,
+    type: "follow",
+    action: "started following",
+    target: "@design_systems_guru",
+    timeAgo: "1 day ago"
   }
 ];
 
 export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Code2 className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold">Merge</span>
-          </div>
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/home" className="text-muted-foreground hover:text-foreground">Home</Link>
-            <Link href="/projects" className="text-muted-foreground hover:text-foreground">Projects</Link>
-            <Link href="/blogs" className="text-muted-foreground hover:text-foreground">Blogs</Link>
-            <Link href="/notifications" className="text-muted-foreground hover:text-foreground">Notifications</Link>
-          </nav>
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm">
-              <Settings className="h-4 w-4" />
-            </Button>
-            <Avatar>
-              <AvatarImage src="/api/placeholder/32/32" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-      </header>
+      <Navbar currentPage="profile" />
 
-      <div className="container mx-auto px-4 py-6">
-        {/* Profile Header */}
-        <div className="mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={mockUser.avatar} />
-                  <AvatarFallback className="text-2xl">{mockUser.name[0]}</AvatarFallback>
-                </Avatar>
-                
-                <div className="flex-1">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                    <div>
-                      <h1 className="text-2xl font-bold">{mockUser.name}</h1>
-                      <p className="text-muted-foreground">@{mockUser.username}</p>
-                    </div>
-                    <div className="flex items-center space-x-2 mt-2 md:mt-0">
-                      <Button>Follow</Button>
-                      <Button variant="outline">Message</Button>
-                    </div>
-                  </div>
+      <div className="pt-20 px-8">
+        <div className="max-w-8xl mx-auto">
+          {/* Profile Header */}
+          <div className="mb-16">
+            <div className="grid lg:grid-cols-12 gap-12 items-start">
+              <div className="lg:col-span-8">
+                <div className="flex items-start space-x-8">
+                  <Avatar className="h-32 w-32">
+                    <AvatarImage src={mockUser.avatar} />
+                    <AvatarFallback className="text-4xl font-light">{mockUser.name[0]}</AvatarFallback>
+                  </Avatar>
                   
-                  <p className="text-muted-foreground mb-4">{mockUser.bio}</p>
-                  
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center space-x-1">
-                      <MapPin className="h-4 w-4" />
-                      <span>{mockUser.location}</span>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h1 className="text-4xl font-light mb-2 tracking-tight">{mockUser.name}</h1>
+                        <p className="text-lg text-muted-foreground font-mono">@{mockUser.username}</p>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <Button variant="outline" className="font-light">
+                          <MessageCircle className="mr-2 h-4 w-4" />
+                          Message
+                        </Button>
+                        <Button className="font-light bg-foreground text-background">
+                          <Plus className="mr-2 h-4 w-4" />
+                          Follow
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <LinkIcon className="h-4 w-4" />
-                      <a href={mockUser.website} className="text-primary hover:underline">
-                        {mockUser.website}
-                      </a>
+                    
+                    <p className="text-base font-light text-muted-foreground story-text mb-6 max-w-2xl">
+                      {mockUser.bio}
+                    </p>
+                    
+                    <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground mb-6">
+                      <div className="flex items-center space-x-2">
+                        <MapPin className="h-4 w-4" />
+                        <span className="font-light">{mockUser.location}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <LinkIcon className="h-4 w-4" />
+                        <a href={mockUser.website} className="font-light hover:text-foreground transition-colors">
+                          {mockUser.website}
+                        </a>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="h-4 w-4" />
+                        <span className="font-light">Joined {mockUser.joinedDate}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="h-4 w-4" />
-                      <span>Joined {mockUser.joinedDate}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-6 mt-4">
-                    <div>
-                      <span className="font-semibold">{mockUser.followers}</span>
-                      <span className="text-muted-foreground ml-1">followers</span>
-                    </div>
-                    <div>
-                      <span className="font-semibold">{mockUser.following}</span>
-                      <span className="text-muted-foreground ml-1">following</span>
+                    
+                    <div className="flex items-center space-x-8">
+                      <div className="text-center">
+                        <div className="text-2xl font-light">{mockUser.followers.toLocaleString()}</div>
+                        <div className="text-xs font-light text-muted-foreground uppercase tracking-wider">Followers</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-light">{mockUser.following.toLocaleString()}</div>
+                        <div className="text-xs font-light text-muted-foreground uppercase tracking-wider">Following</div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* GitHub Stats */}
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-primary">{mockUser.githubStats.publicRepos}</div>
-              <div className="text-sm text-muted-foreground">Public Repos</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-primary">{mockUser.githubStats.contributions}</div>
-              <div className="text-sm text-muted-foreground">Contributions</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-primary">{mockUser.githubStats.stars}</div>
-              <div className="text-sm text-muted-foreground">Total Stars</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Content Tabs */}
-        <Tabs defaultValue="projects" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="projects">Projects</TabsTrigger>
-            <TabsTrigger value="blogs">Blogs</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="projects" className="space-y-4">
-            {mockProjects.map((project) => (
-              <Card key={project.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center space-x-2">
-                      <Code2 className="h-5 w-5" />
-                      <span>{project.name}</span>
-                    </CardTitle>
-                    <Button variant="ghost" size="sm">
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <CardDescription>{project.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                      <div className="flex items-center space-x-1">
-                        <Star className="h-4 w-4" />
-                        <span>{project.stars}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <GitFork className="h-4 w-4" />
-                        <span>{project.forks}</span>
-                      </div>
-                      <Badge variant="outline">{project.language}</Badge>
+              
+              <div className="lg:col-span-4">
+                {/* Skills */}
+                <Card className="border-border/20 bg-card/20 mb-6">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg font-light">Skills</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {mockUser.skills.map((skill) => (
+                        <Badge key={skill} variant="outline" className="font-light border-border/30 text-xs">
+                          {skill}
+                        </Badge>
+                      ))}
                     </div>
-                    <span className="text-sm text-muted-foreground">Updated {project.updatedAt}</span>
+                  </CardContent>
+                </Card>
+
+                {/* GitHub Stats */}
+                <div className="grid grid-cols-3 gap-4">
+                  <Card className="border-border/20 bg-card/20 text-center">
+                    <CardContent className="p-4">
+                      <div className="text-2xl font-light text-primary mb-1">{mockUser.githubStats.publicRepos}</div>
+                      <div className="text-xs font-light text-muted-foreground uppercase tracking-wider">Repos</div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-border/20 bg-card/20 text-center">
+                    <CardContent className="p-4">
+                      <div className="text-2xl font-light text-primary mb-1">{mockUser.githubStats.contributions.toLocaleString()}</div>
+                      <div className="text-xs font-light text-muted-foreground uppercase tracking-wider">Commits</div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-border/20 bg-card/20 text-center">
+                    <CardContent className="p-4">
+                      <div className="text-2xl font-light text-primary mb-1">{mockUser.githubStats.stars.toLocaleString()}</div>
+                      <div className="text-xs font-light text-muted-foreground uppercase tracking-wider">Stars</div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Tabs */}
+          <Tabs defaultValue="projects" className="space-y-8">
+            <TabsList className="bg-muted/30 border border-border/20">
+              <TabsTrigger value="projects" className="font-light">Projects</TabsTrigger>
+              <TabsTrigger value="insights" className="font-light">Insights</TabsTrigger>
+              <TabsTrigger value="activity" className="font-light">Activity</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="projects" className="space-y-6">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-light">Projects</h2>
+                <Button variant="outline" className="font-light">
+                  <Github className="mr-2 h-4 w-4" />
+                  View on GitHub
+                </Button>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                {mockProjects.map((project) => (
+                  <Card key={project.id} className={`border-border/20 bg-card/20 hover-lift ${project.featured ? 'border-primary/20' : ''}`}>
+                    <CardHeader className="pb-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-2">
+                          <Code2 className="h-4 w-4" />
+                          <CardTitle className="text-lg font-light">{project.name}</CardTitle>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {project.featured && (
+                            <Badge variant="outline" className="font-light border-primary/30 text-xs uppercase tracking-[0.1em]">
+                              Featured
+                            </Badge>
+                          )}
+                          <Button variant="ghost" size="sm">
+                            <ExternalLink className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                      <CardDescription className="text-sm font-light text-muted-foreground story-text">
+                        {project.description}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-4 text-xs text-muted-foreground font-mono">
+                          <div className="flex items-center space-x-1">
+                            <Star className="h-3 w-3" />
+                            <span>{project.stars.toLocaleString()}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <GitFork className="h-3 w-3" />
+                            <span>{project.forks}</span>
+                          </div>
+                          <Badge variant="outline" className="font-light border-border/30 text-xs">
+                            {project.language}
+                          </Badge>
+                        </div>
+                        <span className="text-xs text-muted-foreground font-mono">
+                          Updated {project.updatedAt}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {project.tags.map((tag) => (
+                          <Badge key={tag} variant="outline" className="font-light border-border/30 text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="insights" className="space-y-6">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-light">Insights</h2>
+                <Button variant="outline" className="font-light">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Write New
+                </Button>
+              </div>
+              
+              <div className="space-y-6">
+                {mockBlogs.map((blog) => (
+                  <Card key={blog.id} className="border-border/20 bg-card/20 hover-lift">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-xl font-light mb-3 hover:text-primary cursor-pointer transition-colors">
+                        {blog.title}
+                      </CardTitle>
+                      <CardDescription className="text-sm font-light text-muted-foreground story-text">
+                        {blog.excerpt}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-4 text-xs text-muted-foreground font-mono">
+                          <span>{blog.publishedAt}</span>
+                          <span>{blog.readTime}</span>
+                          <div className="flex items-center space-x-1">
+                            <Heart className="h-3 w-3" />
+                            <span>{blog.likes}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <MessageCircle className="h-3 w-3" />
+                            <span>{blog.comments}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {blog.tags.map((tag) => (
+                          <Badge key={tag} variant="outline" className="font-light border-border/30 text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="activity">
+              <div className="mb-8">
+                <h2 className="text-2xl font-light">Recent Activity</h2>
+              </div>
+              
+              <Card className="border-border/20 bg-card/20">
+                <CardContent className="p-6">
+                  <div className="space-y-6">
+                    {mockActivity.map((activity) => (
+                      <div key={activity.id} className="flex items-center space-x-4">
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        <div className="flex-1">
+                          <p className="text-sm font-light">
+                            <span className="text-foreground">{activity.action}</span>
+                            <span className="text-primary font-mono mx-2">{activity.target}</span>
+                          </p>
+                          <p className="text-xs text-muted-foreground font-mono">{activity.timeAgo}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </TabsContent>
-          
-          <TabsContent value="blogs" className="space-y-4">
-            {mockBlogs.map((blog) => (
-              <Card key={blog.id}>
-                <CardHeader>
-                  <CardTitle>{blog.title}</CardTitle>
-                  <CardDescription>{blog.excerpt}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center space-x-4">
-                      <span>{blog.publishedAt}</span>
-                      <span>{blog.readTime}</span>
-                      <span>{blog.likes} likes</span>
-                    </div>
-                    <Button variant="ghost" size="sm">
-                      Read More
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </TabsContent>
-          
-          <TabsContent value="activity">
-            <Card>
-              <CardContent className="p-6 text-center text-muted-foreground">
-                Activity feed coming soon...
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );

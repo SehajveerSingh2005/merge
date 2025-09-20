@@ -1,0 +1,104 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { NotificationsModal } from "@/components/notifications-modal";
+import { MessagesModal } from "@/components/messages-modal";
+import { 
+  Bell,
+  MessageCircle,
+  Settings,
+  Minus
+} from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+
+interface NavbarProps {
+  currentPage?: string;
+}
+
+export function Navbar({ currentPage }: NavbarProps) {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showMessages, setShowMessages] = useState(false);
+  return (
+    <header className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-sm border-b border-border/20">
+      <div className="max-w-8xl mx-auto px-8 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="w-5 h-5 bg-foreground flex items-center justify-center">
+                <Minus className="h-2 w-2 text-background" />
+              </div>
+              <span className="text-base font-light tracking-[0.2em]">MERGE</span>
+            </Link>
+          </div>
+          
+          <nav className="hidden lg:flex items-center space-x-12">
+            <Link 
+              href="/home" 
+              className={`text-xs font-light uppercase tracking-[0.15em] transition-colors ${
+                currentPage === 'home' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Feed
+            </Link>
+            <Link 
+              href="/projects" 
+              className={`text-xs font-light uppercase tracking-[0.15em] transition-colors ${
+                currentPage === 'projects' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Projects
+            </Link>
+            <Link 
+              href="/insights" 
+              className={`text-xs font-light uppercase tracking-[0.15em] transition-colors ${
+                currentPage === 'insights' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Explore
+            </Link>
+          </nav>
+          
+          <div className="flex items-center space-x-6">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="relative"
+              onClick={() => setShowMessages(!showMessages)}
+            >
+              <MessageCircle className="h-4 w-4" />
+              <div className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full"></div>
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="relative"
+              onClick={() => setShowNotifications(!showNotifications)}
+            >
+              <Bell className="h-4 w-4" />
+              <div className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full"></div>
+            </Button>
+            <Button variant="ghost" size="sm">
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="/api/placeholder/32/32" />
+              <AvatarFallback className="text-xs">JD</AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
+      </div>
+      
+      <NotificationsModal 
+        isOpen={showNotifications} 
+        onClose={() => setShowNotifications(false)} 
+      />
+      <MessagesModal 
+        isOpen={showMessages} 
+        onClose={() => setShowMessages(false)} 
+      />
+    </header>
+  );
+}

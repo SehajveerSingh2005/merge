@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Navbar } from "@/components/navbar";
 import { 
   Code2, 
   Star,
@@ -12,302 +13,371 @@ import {
   Filter,
   Plus,
   TrendingUp,
-  Calendar
+  MessageCircle,
+  Github,
+  Play
 } from "lucide-react";
 import Link from "next/link";
 
-// Mock projects data
+// Enhanced mock projects data
 const mockProjects = [
   {
     id: 1,
-    name: "react-dashboard",
-    description: "A modern, responsive dashboard built with React, TypeScript, and Tailwind CSS. Features real-time data visualization and dark mode support.",
+    name: "neural-canvas",
+    description: "Interactive neural network visualization tool built with Three.js and WebGL shaders. Real-time training visualization with customizable architectures and beautiful animations.",
     author: {
       name: "Sarah Chen",
-      username: "sarahdev",
+      username: "neural_dev",
       avatar: "/api/placeholder/40/40"
     },
-    stars: 1247,
-    forks: 189,
+    stats: { stars: 2847, forks: 234, watchers: 156, issues: 12 },
     language: "TypeScript",
-    tags: ["react", "typescript", "dashboard", "tailwind"],
-    updatedAt: "2 days ago",
-    featured: true
+    tags: ["WebGL", "Three.js", "Neural Networks", "Visualization"],
+    updatedAt: "6 hours ago",
+    featured: true,
+    demo: "https://neural-canvas.dev"
   },
   {
     id: 2,
-    name: "api-toolkit",
-    description: "Comprehensive utility library for building REST APIs with Node.js. Includes authentication, validation, and error handling.",
+    name: "quantum-state-manager",
+    description: "State management library inspired by quantum mechanics principles. Superposition meets React in this experimental approach to application state.",
     author: {
       name: "Alex Rodriguez",
-      username: "alexdev",
+      username: "quantum_coder",
       avatar: "/api/placeholder/40/40"
     },
-    stars: 892,
-    forks: 156,
+    stats: { stars: 1934, forks: 167, watchers: 89, issues: 8 },
     language: "JavaScript",
-    tags: ["nodejs", "api", "backend", "express"],
-    updatedAt: "5 days ago",
-    featured: false
+    tags: ["React", "State Management", "Quantum", "Experimental"],
+    updatedAt: "1 day ago",
+    featured: true,
+    demo: "https://quantum-state.dev"
   },
   {
     id: 3,
-    name: "css-animations",
-    description: "Beautiful collection of smooth CSS animations and transitions. Perfect for modern web applications.",
+    name: "design-system-kit",
+    description: "Comprehensive design system with React components, design tokens, and documentation. Built for scale with TypeScript and Storybook integration.",
     author: {
-      name: "Emma Davis",
-      username: "emmad",
+      name: "Jordan Kim",
+      username: "design_systems_guru",
       avatar: "/api/placeholder/40/40"
     },
-    stars: 634,
-    forks: 89,
-    language: "CSS",
-    tags: ["css", "animations", "frontend", "ui"],
-    updatedAt: "1 week ago",
-    featured: true
+    stats: { stars: 1567, forks: 123, watchers: 67, issues: 15 },
+    language: "TypeScript",
+    tags: ["Design System", "React", "Storybook", "Components"],
+    updatedAt: "3 days ago",
+    featured: false,
+    demo: "https://design-kit.dev"
   },
   {
     id: 4,
-    name: "ml-playground",
-    description: "Interactive machine learning playground with Jupyter notebooks and Python examples for beginners.",
+    name: "poetic-code-generator",
+    description: "AI-powered code generator that writes code like poetry. Where functionality meets beauty in perfect harmony. Experimental approach to expressive programming.",
     author: {
-      name: "David Kim",
-      username: "davidk",
+      name: "Maya Patel",
+      username: "code_poet",
       avatar: "/api/placeholder/40/40"
     },
-    stars: 445,
-    forks: 67,
+    stats: { stars: 1234, forks: 89, watchers: 45, issues: 6 },
     language: "Python",
-    tags: ["python", "machine-learning", "jupyter", "ai"],
-    updatedAt: "3 days ago",
-    featured: false
+    tags: ["AI", "Code Generation", "Poetry", "Experimental"],
+    updatedAt: "5 days ago",
+    featured: false,
+    demo: "https://poetic-code.dev"
   },
   {
     id: 5,
-    name: "vue-components",
-    description: "Reusable Vue.js components library with comprehensive documentation and TypeScript support.",
+    name: "rust-cli-toolkit",
+    description: "Collection of high-performance command-line tools built with Rust. Fast, reliable, and cross-platform utilities for modern development workflows.",
     author: {
-      name: "Lisa Wang",
-      username: "lisaw",
+      name: "River Chen",
+      username: "rust_evangelist",
       avatar: "/api/placeholder/40/40"
     },
-    stars: 378,
-    forks: 45,
-    language: "Vue",
-    tags: ["vue", "components", "typescript", "ui-library"],
-    updatedAt: "4 days ago",
-    featured: false
+    stats: { stars: 987, forks: 67, watchers: 34, issues: 4 },
+    language: "Rust",
+    tags: ["Rust", "CLI", "Tools", "Performance"],
+    updatedAt: "1 week ago",
+    featured: false,
+    demo: null
   },
   {
     id: 6,
-    name: "rust-cli-tools",
-    description: "Collection of command-line tools built with Rust. Fast, reliable, and cross-platform utilities.",
+    name: "micro-animations-lib",
+    description: "Lightweight animation library for micro-interactions. Smooth, performant animations that enhance user experience without bloating your bundle.",
     author: {
-      name: "Mike Johnson",
-      username: "mikej",
+      name: "Casey Morgan",
+      username: "animation_master",
       avatar: "/api/placeholder/40/40"
     },
-    stars: 267,
-    forks: 23,
-    language: "Rust",
-    tags: ["rust", "cli", "tools", "systems"],
-    updatedAt: "6 days ago",
-    featured: false
+    stats: { stars: 756, forks: 45, watchers: 23, issues: 2 },
+    language: "JavaScript",
+    tags: ["Animation", "Micro-interactions", "Performance", "UI"],
+    updatedAt: "2 weeks ago",
+    featured: false,
+    demo: "https://micro-animations.dev"
   }
 ];
 
-const featuredProjects = mockProjects.filter(p => p.featured);
-const allProjects = mockProjects;
+const trendingLanguages = [
+  { name: "TypeScript", count: 1247, trend: "up" },
+  { name: "Rust", count: 892, trend: "up" },
+  { name: "Python", count: 756, trend: "stable" },
+  { name: "JavaScript", count: 634, trend: "down" },
+  { name: "Go", count: 523, trend: "up" },
+  { name: "WebAssembly", count: 445, trend: "up" }
+];
+
+const projectCategories = [
+  { name: "AI & ML", count: 234 },
+  { name: "Web Development", count: 567 },
+  { name: "Developer Tools", count: 345 },
+  { name: "Design Systems", count: 123 },
+  { name: "Performance", count: 189 },
+  { name: "Experimental", count: 67 }
+];
 
 export default function ProjectsPage() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Code2 className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold">Merge</span>
-          </div>
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/home" className="text-muted-foreground hover:text-foreground">Home</Link>
-            <Link href="/projects" className="text-primary font-medium">Projects</Link>
-            <Link href="/blogs" className="text-muted-foreground hover:text-foreground">Blogs</Link>
-            <Link href="/notifications" className="text-muted-foreground hover:text-foreground">Notifications</Link>
-          </nav>
-          <div className="flex items-center space-x-4">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Project
-            </Button>
-            <Avatar>
-              <AvatarImage src="/api/placeholder/32/32" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-      </header>
+      <Navbar currentPage="projects" />
 
-      <div className="container mx-auto px-4 py-6">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Discover Projects</h1>
-          <p className="text-muted-foreground">
-            Explore amazing projects built by the developer community
-          </p>
-        </div>
-
-        {/* Search and Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search projects..." className="pl-10" />
-          </div>
-          <Button variant="outline">
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
-          </Button>
-        </div>
-
-        {/* Featured Projects */}
-        <section className="mb-12">
-          <div className="flex items-center space-x-2 mb-6">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            <h2 className="text-2xl font-bold">Featured Projects</h2>
-          </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            {featuredProjects.map((project) => (
-              <Card key={project.id} className="border-primary/20">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="flex items-center space-x-2">
-                        <Code2 className="h-5 w-5" />
-                        <span>{project.name}</span>
-                        <Badge variant="secondary">Featured</Badge>
-                      </CardTitle>
-                      <CardDescription className="mt-2">{project.description}</CardDescription>
-                    </div>
-                    <Button variant="ghost" size="sm">
-                      <ExternalLink className="h-4 w-4" />
+      <div className="pt-20 px-8">
+        <div className="max-w-8xl mx-auto">
+          <div className="grid lg:grid-cols-12 gap-12">
+            {/* Main Content */}
+            <div className="lg:col-span-8">
+              {/* Page Header */}
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h1 className="text-4xl font-light mb-3 tracking-tight">Projects</h1>
+                    <p className="text-base font-light text-muted-foreground">
+                      Discover amazing projects from the developer community
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <Button variant="outline" size="sm" className="font-light">
+                      <Filter className="mr-2 h-3 w-3" />
+                      Filter
+                    </Button>
+                    <Button size="sm" className="font-light bg-foreground text-background">
+                      <Plus className="mr-2 h-3 w-3" />
+                      Share Project
                     </Button>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={project.author.avatar} />
-                        <AvatarFallback>{project.author.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">{project.author.name}</p>
-                        <p className="text-xs text-muted-foreground">@{project.author.username}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                      <div className="flex items-center space-x-1">
-                        <Star className="h-4 w-4" />
-                        <span>{project.stars}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <GitFork className="h-4 w-4" />
-                        <span>{project.forks}</span>
-                      </div>
-                      <Badge variant="outline">{project.language}</Badge>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        #{tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      <span>Updated {project.updatedAt}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Button size="sm">
-                        <Star className="mr-2 h-4 w-4" />
-                        Star
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        View
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
+                </div>
+                
+                {/* Search */}
+                <div className="relative mb-8">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input 
+                    placeholder="Search projects, languages, topics..." 
+                    className="pl-12 bg-muted/30 border-border/30 font-light"
+                  />
+                </div>
 
-        {/* All Projects */}
-        <section>
-          <h2 className="text-2xl font-bold mb-6">All Projects</h2>
-          <div className="grid gap-4">
-            {allProjects.map((project) => (
-              <Card key={project.id}>
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <h3 className="text-lg font-semibold hover:text-primary cursor-pointer">
-                          {project.name}
-                        </h3>
-                        {project.featured && <Badge variant="secondary">Featured</Badge>}
-                      </div>
-                      <p className="text-muted-foreground mb-4">{project.description}</p>
-                      
-                      <div className="flex items-center space-x-6 mb-4">
+                {/* Filter Tags */}
+                <div className="flex items-center space-x-3 mb-8">
+                  <span className="text-xs font-light text-muted-foreground uppercase tracking-[0.15em]">
+                    Categories:
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <Badge variant="outline" className="font-light border-border/30 text-xs cursor-pointer hover:bg-muted/50">
+                      AI & ML
+                    </Badge>
+                    <Badge variant="outline" className="font-light border-border/30 text-xs cursor-pointer hover:bg-muted/50">
+                      Web Development
+                    </Badge>
+                    <Badge variant="outline" className="font-light border-border/30 text-xs cursor-pointer hover:bg-muted/50">
+                      Developer Tools
+                    </Badge>
+                    <Badge variant="outline" className="font-light border-border/30 text-xs cursor-pointer hover:bg-muted/50">
+                      Experimental
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Projects Grid */}
+              <div className="space-y-8">
+                {mockProjects.map((project) => (
+                  <Card key={project.id} className={`border-border/20 bg-card/20 hover-lift ${project.featured ? 'border-primary/20' : ''}`}>
+                    <CardHeader className="pb-4">
+                      <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-3">
-                          <Avatar className="h-6 w-6">
+                          <Avatar className="h-8 w-8">
                             <AvatarImage src={project.author.avatar} />
                             <AvatarFallback className="text-xs">{project.author.name[0]}</AvatarFallback>
                           </Avatar>
-                          <span className="text-sm text-muted-foreground">@{project.author.username}</span>
+                          <div>
+                            <p className="text-sm font-light">{project.author.name}</p>
+                            <p className="text-xs text-muted-foreground font-mono">@{project.author.username}</p>
+                          </div>
                         </div>
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <div className="flex items-center space-x-1">
-                            <Star className="h-4 w-4" />
-                            <span>{project.stars}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <GitFork className="h-4 w-4" />
-                            <span>{project.forks}</span>
-                          </div>
-                          <Badge variant="outline">{project.language}</Badge>
-                          <span>Updated {project.updatedAt}</span>
+                        <div className="flex items-center space-x-3">
+                          {project.featured && (
+                            <Badge variant="outline" className="font-light border-primary/30 text-xs uppercase tracking-[0.1em]">
+                              Featured
+                            </Badge>
+                          )}
+                          <span className="text-xs text-muted-foreground font-mono">{project.updatedAt}</span>
                         </div>
                       </div>
                       
-                      <div className="flex flex-wrap gap-2">
-                        {project.tags.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            #{tag}
-                          </Badge>
-                        ))}
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-xl font-light mb-3 hover:text-primary cursor-pointer transition-colors flex items-center space-x-2">
+                            <Code2 className="h-5 w-5" />
+                            <span>{project.name}</span>
+                          </CardTitle>
+                          <CardDescription className="text-sm font-light text-muted-foreground story-text leading-relaxed">
+                            {project.description}
+                          </CardDescription>
+                        </div>
+                        <div className="flex items-center space-x-2 ml-6">
+                          {project.demo && (
+                            <Button variant="outline" size="sm" className="font-light">
+                              <Play className="mr-2 h-3 w-3" />
+                              Demo
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="sm">
+                            <Github className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
+                    </CardHeader>
                     
-                    <div className="flex items-center space-x-2 ml-4">
-                      <Button size="sm">
-                        <Star className="mr-2 h-4 w-4" />
-                        Star
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <CardContent>
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center space-x-2">
+                          {project.tags.slice(0, 4).map((tag) => (
+                            <Badge key={tag} variant="outline" className="font-light border-border/30 text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                        
+                        <div className="flex items-center space-x-4 text-xs text-muted-foreground font-mono">
+                          <div className="flex items-center space-x-1">
+                            <Star className="h-3 w-3" />
+                            <span>{project.stats.stars.toLocaleString()}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <GitFork className="h-3 w-3" />
+                            <span>{project.stats.forks}</span>
+                          </div>
+                          <Badge variant="outline" className="font-light border-border/30 text-xs">
+                            {project.language}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <Button variant="ghost" size="sm" className="font-light">
+                            <Star className="mr-2 h-3 w-3" />
+                            Star
+                          </Button>
+                          <Button variant="ghost" size="sm" className="font-light">
+                            <GitFork className="mr-2 h-3 w-3" />
+                            Fork
+                          </Button>
+                          <Button variant="ghost" size="sm" className="font-light">
+                            <MessageCircle className="mr-2 h-3 w-3" />
+                            Discuss
+                          </Button>
+                        </div>
+                        <Button variant="ghost" size="sm" className="font-light">
+                          <ExternalLink className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div className="lg:col-span-4 space-y-8">
+              {/* Trending Languages */}
+              <Card className="border-border/20 bg-card/20">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-light flex items-center space-x-2">
+                    <TrendingUp className="h-4 w-4" />
+                    <span>Trending Languages</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {trendingLanguages.map((lang, index) => (
+                      <div key={lang.name} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-xs font-mono text-muted-foreground w-4">
+                            {String(index + 1).padStart(2, '0')}
+                          </span>
+                          <div>
+                            <p className="text-sm font-light">{lang.name}</p>
+                            <p className="text-xs text-muted-foreground font-mono">
+                              {lang.count.toLocaleString()} projects
+                            </p>
+                          </div>
+                        </div>
+                        <div className={`text-xs px-2 py-1 rounded ${
+                          lang.trend === 'up' ? 'text-green-500 bg-green-500/10' :
+                          lang.trend === 'down' ? 'text-red-500 bg-red-500/10' :
+                          'text-muted-foreground bg-muted/20'
+                        }`}>
+                          {lang.trend === 'up' ? '↗' : lang.trend === 'down' ? '↘' : '→'}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
-            ))}
+
+              {/* Project Categories */}
+              <Card className="border-border/20 bg-card/20">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-light">Categories</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {projectCategories.map((category) => (
+                      <div key={category.name} className="flex items-center justify-between">
+                        <p className="text-sm font-light cursor-pointer hover:text-primary transition-colors">
+                          {category.name}
+                        </p>
+                        <span className="text-xs text-muted-foreground font-mono">
+                          {category.count}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Share Your Project */}
+              <Card className="border-border/20 bg-card/20">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-light">Share Your Work</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm font-light text-muted-foreground mb-4">
+                    Built something amazing? Share it with the community.
+                  </p>
+                  <Button className="w-full font-light bg-foreground text-background" asChild>
+                    <Link href="/projects/new">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Share Project
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </section>
+        </div>
       </div>
     </div>
   );
