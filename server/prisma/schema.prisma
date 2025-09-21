@@ -224,6 +224,7 @@ model NewsItem {
   author      String?
   thumbnail   String?
   source      String   @default("hackernews")
+  category    String   @default("article") // news, article, tutorial, discussion
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
 }

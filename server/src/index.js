@@ -12,6 +12,8 @@ const blogRoutes = require('./routes/blogs');
 const feedRoutes = require('./routes/feed');
 const notificationRoutes = require('./routes/notifications');
 const messageRoutes = require('./routes/messages');
+const hackerNewsService = require('./services/hackernews');
+const devToService = require('./services/devto');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -55,6 +57,7 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/feed', feedRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/news', require('./routes/news'));
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -88,10 +91,18 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  
+  // Start content syncing in development
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('🔥 Starting content integrations...');
+    // Sync every 30 minutes for HN, 60 for Dev.to
+    hackerNewsService.startPeriodicSync(30);
+    devToService.startPeriodicSync(60);
+  }
 });
 
 module.exports = app;

@@ -9,14 +9,107 @@ router.get('/', optionalAuth, async (req, res) => {
   try {
     const { page = 1, limit = 10, type } = req.query;
     const skip = (page - 1) * limit;
+    const requestedLimit = parseInt(limit);
 
     let feedItems = [];
 
-    // Get projects
-    if (!type || type === 'project') {
+    if (type) {
+      // Single type request
+      if (type === 'project') {
+        const projects = await prisma.project.findMany({
+          skip,
+          take: requestedLimit,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+                image: true
+              }
+            },
+            _count: {
+              select: {
+                likes: true,
+                comments: true
+              }
+            }
+          }
+        });
+
+        feedItems = projects.map(project => ({
+          ...project,
+          type: 'project',
+          stats: {
+            stars: project.stars,
+            forks: project.forks,
+            likes: project._count.likes,
+            comments: project._count.comments
+          }
+        }));
+      } else if (type === 'blog') {
+        const blogPosts = await prisma.blogPost.findMany({
+          skip,
+          take: requestedLimit,
+          where: { published: true },
+          orderBy: { createdAt: 'desc' },
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+                image: true
+              }
+            },
+            _count: {
+              select: {
+                likes: true,
+                comments: true
+              }
+            }
+          }
+        });
+
+        feedItems = blogPosts.map(post => ({
+          ...post,
+          type: 'blog',
+          description: post.excerpt || post.content.substring(0, 200) + '...',
+          stats: {
+            likes: post._count.likes,
+            comments: post._count.comments,
+            readTime: post.readTime || Math.ceil(post.content.length / 1000)
+          }
+        }));
+      } else if (type === 'news') {
+        const newsItems = await prisma.newsItem.findMany({
+          skip,
+          take: requestedLimit,
+          orderBy: { createdAt: 'desc' }
+        });
+
+        feedItems = newsItems.map(item => ({
+          ...item,
+          type: item.category || 'news',
+          description: `${item.points} points • ${item.comments} comments`,
+          source: item.source, // Use actual source
+          author: {
+            name: item.author || (item.source === 'devto' ? 'Dev.to' : 'Tech News'),
+            username: item.source === 'devto' ? 'devto' : 'technews',
+            image: '/api/placeholder/40/40'
+          },
+          stats: {
+            points: item.points,
+            comments: item.comments
+          }
+        }));
+      }
+    } else {
+      // Mixed feed - get all items and paginate after sorting
+      
+      // Get projects
       const projects = await prisma.project.findMany({
-        skip: type === 'project' ? skip : 0,
-        take: type === 'project' ? parseInt(limit) : 5,
         orderBy: { createdAt: 'desc' },
         include: {
           author: {
@@ -46,13 +139,9 @@ router.get('/', optionalAuth, async (req, res) => {
           comments: project._count.comments
         }
       })));
-    }
 
-    // Get blog posts
-    if (!type || type === 'blog') {
+      // Get blog posts
       const blogPosts = await prisma.blogPost.findMany({
-        skip: type === 'blog' ? skip : 0,
-        take: type === 'blog' ? parseInt(limit) : 5,
         where: { published: true },
         orderBy: { createdAt: 'desc' },
         include: {
@@ -83,23 +172,20 @@ router.get('/', optionalAuth, async (req, res) => {
           readTime: post.readTime || Math.ceil(post.content.length / 1000)
         }
       })));
-    }
 
-    // Get news items
-    if (!type || type === 'news') {
+      // Get news items
       const newsItems = await prisma.newsItem.findMany({
-        skip: type === 'news' ? skip : 0,
-        take: type === 'news' ? parseInt(limit) : 3,
         orderBy: { createdAt: 'desc' }
       });
 
       feedItems.push(...newsItems.map(item => ({
         ...item,
-        type: 'news',
+        type: item.category || 'article', // Use the actual category
         description: `${item.points} points • ${item.comments} comments`,
+        source: item.source, // Use the actual source from database
         author: {
-          name: item.author || 'Tech News',
-          username: 'technews',
+          name: item.author || (item.source === 'devto' ? 'Dev.to' : 'Hacker News'),
+          username: item.source === 'devto' ? 'devto' : 'hackernews',
           image: '/api/placeholder/40/40'
         },
         stats: {
@@ -107,13 +193,21 @@ router.get('/', optionalAuth, async (req, res) => {
           comments: item.comments
         }
       })));
+
+      // Sort by creation date and apply pagination
+      feedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      
+      // Apply pagination to the sorted mixed feed
+      const totalMixedItems = feedItems.length;
+      feedItems = feedItems.slice(skip, skip + requestedLimit);
+      
+      console.log(`📊 Mixed feed: ${totalMixedItems} total items, returning ${feedItems.length} (page ${page}, skip ${skip})`);
+      
+      // Store hasMore for mixed feed
+      var mixedHasMore = skip + requestedLimit < totalMixedItems;
     }
 
-    // Sort by creation date if mixed feed
-    if (!type) {
-      feedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      feedItems = feedItems.slice(0, parseInt(limit));
-    }
+    console.log(`📊 Feed API: Returning ${feedItems.length} items (requested: ${requestedLimit}, type: ${type || 'mixed'})`);
 
     // Add time ago and featured status
     feedItems = feedItems.map(item => ({
@@ -122,12 +216,16 @@ router.get('/', optionalAuth, async (req, res) => {
       featured: item.featured || false
     }));
 
+    // Calculate if there are more items
+    const hasMore = type ? feedItems.length === requestedLimit : mixedHasMore;
+    
     res.json({
       items: feedItems,
       pagination: {
         page: parseInt(page),
-        limit: parseInt(limit),
-        hasMore: feedItems.length === parseInt(limit)
+        limit: requestedLimit,
+        hasMore,
+        total: feedItems.length
       }
     });
   } catch (error) {

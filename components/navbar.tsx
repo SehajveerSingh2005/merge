@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
 
 interface NavbarProps {
   currentPage?: string;
@@ -21,6 +22,7 @@ interface NavbarProps {
 export function Navbar({ currentPage }: NavbarProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
   return (
     <header className="fixed top-0 w-full z-40 bg-background/80 backdrop-blur-sm border-b border-border/20">
       <div className="max-w-8xl mx-auto px-8 py-4">
@@ -62,31 +64,46 @@ export function Navbar({ currentPage }: NavbarProps) {
           </nav>
           
           <div className="flex items-center space-x-6">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="relative"
-              onClick={() => setShowMessages(!showMessages)}
-            >
-              <MessageCircle className="h-4 w-4" />
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></div>
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="relative"
-              onClick={() => setShowNotifications(!showNotifications)}
-            >
-              <Bell className="h-4 w-4" />
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></div>
-            </Button>
-            <Button variant="ghost" size="sm">
-              <Settings className="h-4 w-4" />
-            </Button>
-            <Avatar className="h-8 w-8">
-              <AvatarImage src="/api/placeholder/32/32" />
-              <AvatarFallback className="text-xs">JD</AvatarFallback>
-            </Avatar>
+            {isAuthenticated ? (
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="relative"
+                  onClick={() => setShowMessages(!showMessages)}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></div>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="relative"
+                  onClick={() => setShowNotifications(!showNotifications)}
+                >
+                  <Bell className="h-4 w-4" />
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></div>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={logout}>
+                  <Settings className="h-4 w-4" />
+                </Button>
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user?.image || "/api/placeholder/32/32"} />
+                  <AvatarFallback className="text-xs">
+                    {user?.name?.[0] || user?.username?.[0] || "U"}
+                  </AvatarFallback>
+                </Avatar>
+              </>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Button variant="ghost" size="sm" className="font-light" asChild>
+                  <Link href="/login">Sign in</Link>
+                </Button>
+                <Button size="sm" className="font-light bg-primary text-primary-foreground" asChild>
+                  <Link href="/register">Sign up</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
