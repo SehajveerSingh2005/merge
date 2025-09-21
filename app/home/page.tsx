@@ -20,10 +20,11 @@ import {
   Search,
   Plus,
   Settings,
-  X
+  X,
+  ArrowUp
 } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // Enhanced mock data
 const mockFeedItems = [
@@ -123,13 +124,18 @@ const featuredDevelopers = [
 ];
 
 export default function HomePage() {
-  const [page, setPage] = useState(1);
   const [allFeedItems, setAllFeedItems] = useState([]);
-  
-  // Fetch feed data from API
-  const { data: feedData, loading: feedLoading, error: feedError, refetch } = useApi(
-    () => api.getFeed({ limit: 15, page }),
-    [page]
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Initial load only
+  const { data: initialFeedData, loading: feedLoading, error: feedError } = useApi(
+    () => api.getFeed({ limit: 15, page: 1 }),
+    [] // No dependencies - only load once
   );
 
   // Fetch trending tags
@@ -138,51 +144,93 @@ export default function HomePage() {
     []
   );
 
-  // Handle feed data updates
+  // Handle initial load
   useEffect(() => {
-    if (feedData?.items) {
-      const transformedItems = feedData.items.map(transformFeedItem);
-      if (page === 1) {
-        setAllFeedItems(transformedItems);
-      } else {
-        // Filter out duplicates when adding new items
+    if (initialFeedData?.items) {
+      const transformedItems = initialFeedData.items.map(transformFeedItem);
+      setAllFeedItems(transformedItems);
+      setHasMore(initialFeedData.pagination?.hasMore || false);
+      setInitialLoading(false);
+    } else if (feedError) {
+      // Use mock data if API fails
+      setAllFeedItems(mockFeedItems);
+      setHasMore(false);
+      setInitialLoading(false);
+      setError(feedError);
+    }
+  }, [initialFeedData, feedError]);
+
+  // Load more function
+  const loadMoreItems = async () => {
+    if (isLoadingMore || !hasMore) return;
+    
+    setIsLoadingMore(true);
+    const nextPage = currentPage + 1;
+    
+    try {
+      const response = await api.getFeed({ limit: 15, page: nextPage });
+      
+      if (response?.items) {
+        const transformedItems = response.items.map(transformFeedItem);
+        
+        // Filter out duplicates
         setAllFeedItems(prev => {
           const existingIds = new Set(prev.map(item => item.id));
           const newItems = transformedItems.filter(item => !existingIds.has(item.id));
           return [...prev, ...newItems];
         });
+        
+        setHasMore(response.pagination?.hasMore || false);
+        setCurrentPage(nextPage);
       }
-    } else if (feedError && page === 1) {
-      // Only use mock data on first page if API fails
-      setAllFeedItems(mockFeedItems);
+    } catch (error) {
+      console.error('Error loading more items:', error);
+      setError(error);
+    } finally {
+      setIsLoadingMore(false);
     }
-  }, [feedData, feedError, page]);
+  };
+
+  // Infinite scroll implementation
+  const handleScroll = useCallback(() => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Show/hide scroll to top button
+    setShowScrollTop(scrollTop > 400);
+    
+    // Load more content when near bottom
+    if (
+      window.innerHeight + document.documentElement.scrollTop >= 
+      document.documentElement.offsetHeight - 1000 && // Load when 1000px from bottom
+      hasMore && 
+      !isLoadingMore &&
+      !initialLoading
+    ) {
+      loadMoreItems();
+    }
+  }, [hasMore, isLoadingMore, initialLoading, loadMoreItems]);
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  // Add scroll listener
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   // Use accumulated feed items or empty array while loading
   const feedItems = allFeedItems;
   const trendingTags = trendingData?.tags || mockTrendingTags;
-  const hasMore = feedData?.pagination?.hasMore && !feedError;
 
-  if (feedError) {
-    console.warn('Failed to load feed data, using mock data:', feedError);
+  if (error) {
+    console.warn('Failed to load feed data:', error);
   }
-
-  const loadMore = () => {
-    if (!feedLoading && hasMore) {
-      console.log(`Loading page ${page + 1}...`);
-      setPage(prev => prev + 1);
-    }
-  };
-
-  // Debug logging
-  console.log('Feed state:', {
-    page,
-    feedItemsCount: feedItems.length,
-    hasMore,
-    feedLoading,
-    apiItemsCount: feedData?.items?.length,
-    newItemsIds: feedData?.items?.map(item => item.id).slice(0, 3) // Show first 3 IDs
-  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -206,7 +254,7 @@ export default function HomePage() {
 
               {/* Feed Items */}
               <div className="space-y-8">
-                {feedLoading ? (
+                {initialLoading ? (
                   // Loading skeleton
                   Array.from({ length: 3 }).map((_, i) => (
                     <Card key={i} className="border-primary/20 bg-card/30">
@@ -354,17 +402,28 @@ export default function HomePage() {
                   ))
                 )}
                 
-                {/* Load More Button */}
-                {hasMore && (
-                  <div className="flex justify-center mt-8">
-                    <Button 
-                      onClick={loadMore} 
-                      disabled={feedLoading}
-                      variant="outline" 
-                      className="font-light border-primary/20 hover:bg-primary/5"
-                    >
-                      {feedLoading ? 'Loading...' : 'Load More'}
-                    </Button>
+                {/* Loading indicator for infinite scroll */}
+                {isLoadingMore && (
+                  <div className="flex justify-center mt-8 mb-8">
+                    <div className="flex items-center space-x-3 text-muted-foreground">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      <span className="text-sm font-light">Loading more content...</span>
+                    </div>
+                  </div>
+                )}
+                
+                {/* End of feed indicator */}
+                {!hasMore && feedItems.length > 0 && (
+                  <div className="flex justify-center mt-8 mb-8">
+                    <div className="text-center">
+                      <div className="w-12 h-px bg-border mx-auto mb-3"></div>
+                      <p className="text-sm text-muted-foreground font-light">
+                        You've reached the end of your feed
+                      </p>
+                      <p className="text-xs text-muted-foreground font-mono mt-1">
+                        {feedItems.length} items loaded
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -477,6 +536,17 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 z-50 bg-primary text-primary-foreground p-3 rounded-full shadow-lg hover:bg-primary/90 transition-all duration-200 hover:scale-105"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </button>
+      )}
     </div>
   );
 }
