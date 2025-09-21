@@ -82,12 +82,12 @@ export function NotificationsModal({ isOpen, onClose }: NotificationsModalProps)
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-start justify-end p-4 pt-20">
-      <div className="fixed inset-0 bg-background/80 backdrop-blur-sm -z-10" onClick={onClose} />
-      <Card className="relative w-96 max-h-[80vh] overflow-hidden border-border/20 bg-card/95 backdrop-blur-sm">
-        <div className="p-4 border-b border-border/20">
+    <div className="fixed inset-0 z-50 flex items-start justify-end p-4 pt-20">
+      <div className="fixed inset-0 bg-background/60 backdrop-blur-sm" onClick={onClose} />
+      <Card className="relative w-96 max-h-[80vh] overflow-hidden border-primary/20 bg-card shadow-2xl">
+        <div className="p-4 border-b border-primary/20 bg-primary/5">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-light">Notifications</h3>
+            <h3 className="text-lg font-light text-primary">Notifications</h3>
             <div className="flex items-center space-x-2">
               <Button variant="ghost" size="sm" className="font-light text-xs">
                 Mark all read
@@ -101,7 +101,7 @@ export function NotificationsModal({ isOpen, onClose }: NotificationsModalProps)
         
         <div className="max-h-96 overflow-y-auto">
           {mockNotifications.map((notification) => (
-            <div key={notification.id} className={`p-4 border-b border-border/10 hover:bg-muted/30 ${notification.unread ? 'bg-accent/5' : ''}`}>
+            <div key={notification.id} className={`p-4 border-b border-border/10 hover:bg-primary/5 ${notification.unread ? 'bg-primary/10' : ''}`}>
               <div className="flex space-x-3">
                 <div className="flex-shrink-0 mt-1">
                   {getNotificationIcon(notification.type)}
@@ -113,7 +113,7 @@ export function NotificationsModal({ isOpen, onClose }: NotificationsModalProps)
                     </div>
                     <div className="flex items-center space-x-2 ml-2">
                       {notification.unread && (
-                        <div className="w-2 h-2 bg-accent rounded-full"></div>
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
                       )}
                       <span className="text-xs text-muted-foreground font-mono">
                         {notification.timestamp}
@@ -137,7 +137,7 @@ export function NotificationsModal({ isOpen, onClose }: NotificationsModalProps)
                     <div className="flex items-center space-x-2">
                       {notification.type === "collaboration" && (
                         <>
-                          <Button size="sm" className="font-light bg-accent text-accent-foreground h-7 text-xs">
+                          <Button size="sm" className="font-light bg-primary text-primary-foreground h-7 text-xs">
                             Accept
                           </Button>
                           <Button variant="outline" size="sm" className="font-light h-7 text-xs">
@@ -146,7 +146,7 @@ export function NotificationsModal({ isOpen, onClose }: NotificationsModalProps)
                         </>
                       )}
                       {notification.type === "follow" && (
-                        <Button size="sm" className="font-light bg-accent text-accent-foreground h-7 text-xs">
+                        <Button size="sm" className="font-light bg-primary text-primary-foreground h-7 text-xs">
                           Follow Back
                         </Button>
                       )}

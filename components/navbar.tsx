@@ -22,7 +22,7 @@ export function Navbar({ currentPage }: NavbarProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
   return (
-    <header className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-sm border-b border-border/20">
+    <header className="fixed top-0 w-full z-40 bg-background/80 backdrop-blur-sm border-b border-border/20">
       <div className="max-w-8xl mx-auto px-8 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -69,7 +69,7 @@ export function Navbar({ currentPage }: NavbarProps) {
               onClick={() => setShowMessages(!showMessages)}
             >
               <MessageCircle className="h-4 w-4" />
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full"></div>
+              <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></div>
             </Button>
             <Button 
               variant="ghost" 
@@ -78,7 +78,7 @@ export function Navbar({ currentPage }: NavbarProps) {
               onClick={() => setShowNotifications(!showNotifications)}
             >
               <Bell className="h-4 w-4" />
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full"></div>
+              <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></div>
             </Button>
             <Button variant="ghost" size="sm">
               <Settings className="h-4 w-4" />

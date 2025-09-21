@@ -57,12 +57,12 @@ export function MessagesModal({ isOpen, onClose }: MessagesModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-start justify-end p-4 pt-20">
-      <div className="fixed inset-0 bg-background/80 backdrop-blur-sm -z-10" onClick={onClose} />
-      <Card className="relative w-80 max-h-[80vh] overflow-hidden border-border/20 bg-card/95 backdrop-blur-sm">
-        <div className="p-4 border-b border-border/20">
+    <div className="fixed inset-0 z-50 flex items-start justify-end p-4 pt-20">
+      <div className="fixed inset-0 bg-background/60 backdrop-blur-sm" onClick={onClose} />
+      <Card className="relative w-80 max-h-[80vh] overflow-hidden border-primary/20 bg-card shadow-2xl">
+        <div className="p-4 border-b border-primary/20 bg-primary/5">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-light">Messages</h3>
+            <h3 className="text-lg font-light text-primary">Messages</h3>
             <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="h-4 w-4" />
             </Button>
@@ -71,14 +71,14 @@ export function MessagesModal({ isOpen, onClose }: MessagesModalProps) {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
             <Input 
               placeholder="Search conversations..." 
-              className="pl-9 h-8 bg-muted/30 border-border/30 font-light text-sm"
+              className="pl-9 h-8 bg-muted/30 border-primary/20 font-light text-sm focus:border-primary/40"
             />
           </div>
         </div>
         
         <div className="max-h-96 overflow-y-auto">
           {mockConversations.map((conversation) => (
-            <div key={conversation.id} className="p-3 border-b border-border/10 hover:bg-muted/30 cursor-pointer">
+            <div key={conversation.id} className="p-3 border-b border-border/10 hover:bg-primary/5 cursor-pointer">
               <div className="flex items-center space-x-3">
                 <div className="relative">
                   <Avatar className="h-10 w-10">
@@ -95,8 +95,8 @@ export function MessagesModal({ isOpen, onClose }: MessagesModalProps) {
                     <div className="flex items-center space-x-2">
                       <span className="text-xs text-muted-foreground font-mono">{conversation.timestamp}</span>
                       {conversation.unread > 0 && (
-                        <div className="w-5 h-5 bg-accent rounded-full flex items-center justify-center">
-                          <span className="text-xs font-mono text-accent-foreground">{conversation.unread}</span>
+                        <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                          <span className="text-xs font-mono text-primary-foreground">{conversation.unread}</span>
                         </div>
                       )}
                     </div>
@@ -111,8 +111,8 @@ export function MessagesModal({ isOpen, onClose }: MessagesModalProps) {
           ))}
         </div>
         
-        <div className="p-4 border-t border-border/20">
-          <Button className="w-full font-light bg-accent text-accent-foreground" size="sm">
+        <div className="p-4 border-t border-primary/20">
+          <Button className="w-full font-light bg-primary text-primary-foreground" size="sm">
             <MessageCircle className="mr-2 h-3 w-3" />
             New Message
           </Button>

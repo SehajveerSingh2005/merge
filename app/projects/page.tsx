@@ -170,10 +170,10 @@ export default function ProjectsPage() {
                 
                 {/* Search */}
                 <div className="relative mb-8">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary/60" />
                   <Input 
                     placeholder="Search projects, languages, topics..." 
-                    className="pl-12 bg-muted/30 border-border/30 font-light"
+                    className="pl-12 bg-muted/30 border-primary/20 font-light focus:border-primary/40"
                   />
                 </div>
 
@@ -202,7 +202,7 @@ export default function ProjectsPage() {
               {/* Projects Grid */}
               <div className="space-y-8">
                 {mockProjects.map((project) => (
-                  <Card key={project.id} className={`border-border/20 bg-card/20 hover-lift ${project.featured ? 'border-primary/20' : ''}`}>
+                  <Card key={project.id} className="border-primary/20 bg-card/20 hover-lift">
                     <CardHeader className="pb-4">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-3">
@@ -217,7 +217,7 @@ export default function ProjectsPage() {
                         </div>
                         <div className="flex items-center space-x-3">
                           {project.featured && (
-                            <Badge variant="outline" className="font-light border-primary/30 text-xs uppercase tracking-[0.1em]">
+                            <Badge variant="outline" className="font-light border-primary/40 text-primary text-xs uppercase tracking-[0.1em]">
                               Featured
                             </Badge>
                           )}
@@ -302,10 +302,10 @@ export default function ProjectsPage() {
             {/* Sidebar */}
             <div className="lg:col-span-4 space-y-8">
               {/* Trending Languages */}
-              <Card className="border-border/20 bg-card/20">
+              <Card className="border-primary/20 bg-card/20">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-light flex items-center space-x-2">
-                    <TrendingUp className="h-4 w-4" />
+                    <TrendingUp className="h-4 w-4 text-primary" />
                     <span>Trending Languages</span>
                   </CardTitle>
                 </CardHeader>
@@ -338,7 +338,7 @@ export default function ProjectsPage() {
               </Card>
 
               {/* Project Categories */}
-              <Card className="border-border/20 bg-card/20">
+              <Card className="border-primary/20 bg-card/20">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-light">Categories</CardTitle>
                 </CardHeader>
@@ -359,7 +359,7 @@ export default function ProjectsPage() {
               </Card>
 
               {/* Share Your Project */}
-              <Card className="border-border/20 bg-card/20">
+              <Card className="border-primary/20 bg-card/20">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-light">Share Your Work</CardTitle>
                 </CardHeader>

@@ -196,10 +196,10 @@ export default function InsightsPage() {
                 
                 {/* Search */}
                 <div className="relative mb-8">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary/60" />
                   <Input 
                     placeholder="Search insights, topics, authors..." 
-                    className="pl-12 bg-muted/30 border-border/30 font-light"
+                    className="pl-12 bg-muted/30 border-primary/20 font-light focus:border-primary/40"
                   />
                 </div>
 
@@ -248,7 +248,7 @@ export default function InsightsPage() {
               {/* Insights Feed */}
               <div className="space-y-8">
                 {mockInsights.map((insight) => (
-                  <Card key={insight.id} className={`border-border/20 bg-card/20 hover-lift ${insight.featured ? 'border-primary/20' : ''}`}>
+                  <Card key={insight.id} className="border-primary/20 bg-card/20 hover-lift">
                     <CardHeader className="pb-4">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-3">
@@ -263,7 +263,7 @@ export default function InsightsPage() {
                         </div>
                         <div className="flex items-center space-x-3">
                           {insight.featured && (
-                            <Badge variant="outline" className="font-light border-primary/30 text-xs uppercase tracking-[0.1em]">
+                            <Badge variant="outline" className="font-light border-primary/40 text-primary text-xs uppercase tracking-[0.1em]">
                               Featured
                             </Badge>
                           )}
@@ -342,10 +342,10 @@ export default function InsightsPage() {
             {/* Sidebar */}
             <div className="lg:col-span-4 space-y-8">
               {/* Trending Topics */}
-              <Card className="border-border/20 bg-card/20">
+              <Card className="border-primary/20 bg-card/20">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-light flex items-center space-x-2">
-                    <TrendingUp className="h-4 w-4" />
+                    <TrendingUp className="h-4 w-4 text-primary" />
                     <span>Trending Topics</span>
                   </CardTitle>
                 </CardHeader>
@@ -378,7 +378,7 @@ export default function InsightsPage() {
               </Card>
 
               {/* Featured Authors */}
-              <Card className="border-border/20 bg-card/20">
+              <Card className="border-primary/20 bg-card/20">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-light">Featured Authors</CardTitle>
                 </CardHeader>
@@ -396,7 +396,7 @@ export default function InsightsPage() {
                               <p className="text-sm font-light truncate">{author.name}</p>
                               {author.verified && (
                                 <div className="w-3 h-3 bg-primary rounded-full flex items-center justify-center">
-                                  <X className="h-1.5 w-1.5 text-background" />
+                                  <div className="w-1 h-1 bg-primary-foreground rounded-full"></div>
                                 </div>
                               )}
                             </div>
@@ -417,7 +417,7 @@ export default function InsightsPage() {
               </Card>
 
               {/* Write Your Own */}
-              <Card className="border-border/20 bg-card/20">
+              <Card className="border-primary/20 bg-card/20">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-light">Share Your Insights</CardTitle>
                 </CardHeader>

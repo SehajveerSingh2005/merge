@@ -130,10 +130,10 @@ export default function HomePage() {
               {/* Simple Search Bar */}
               <div className="mb-8">
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary/60" />
                   <Input 
                     placeholder="Search your feed..." 
-                    className="pl-12 bg-muted/30 border-border/30 font-light"
+                    className="pl-12 bg-muted/30 border-primary/20 font-light focus:border-primary/40"
                   />
                 </div>
               </div>
@@ -141,7 +141,7 @@ export default function HomePage() {
               {/* Feed Items */}
               <div className="space-y-8">
                 {mockFeedItems.map((item) => (
-                  <Card key={item.id} className={`border-border/20 bg-card/30 hover-lift ${item.featured ? 'border-primary/20' : ''}`}>
+                  <Card key={item.id} className="border-primary/20 bg-card/30 hover-lift">
                     <CardHeader className="pb-4">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-3">
@@ -156,7 +156,7 @@ export default function HomePage() {
                         </div>
                         <div className="flex items-center space-x-3">
                           {item.featured && (
-                            <Badge variant="outline" className="font-light border-primary/30 text-xs uppercase tracking-[0.1em]">
+                            <Badge variant="outline" className="font-light border-primary/40 text-primary text-xs uppercase tracking-[0.1em]">
                               Featured
                             </Badge>
                           )}
@@ -246,10 +246,10 @@ export default function HomePage() {
             {/* Sidebar */}
             <div className="lg:col-span-4 space-y-8">
               {/* Trending Tags */}
-              <Card className="border-border/20 bg-card/20">
+              <Card className="border-primary/20 bg-card/20">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-light flex items-center space-x-2">
-                    <TrendingUp className="h-4 w-4" />
+                    <TrendingUp className="h-4 w-4 text-primary" />
                     <span>Trending</span>
                   </CardTitle>
                 </CardHeader>
@@ -275,7 +275,7 @@ export default function HomePage() {
               </Card>
 
               {/* Featured Developers */}
-              <Card className="border-border/20 bg-card/20">
+              <Card className="border-primary/20 bg-card/20">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-light">Featured Developers</CardTitle>
                 </CardHeader>
@@ -307,7 +307,7 @@ export default function HomePage() {
               </Card>
 
               {/* Quick Actions */}
-              <Card className="border-border/20 bg-card/20">
+              <Card className="border-primary/20 bg-card/20">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-light">Quick Actions</CardTitle>
                 </CardHeader>
