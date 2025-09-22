@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+const session = require('express-session');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
@@ -14,6 +15,8 @@ const notificationRoutes = require('./routes/notifications');
 const messageRoutes = require('./routes/messages');
 const hackerNewsService = require('./services/hackernews');
 const devToService = require('./services/devto');
+const passport = require('passport');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,6 +24,21 @@ const PORT = process.env.PORT || 5000;
 // Security middleware
 app.use(helmet());
 app.use(compression());
+
+// Cookie parser middleware
+app.use(cookieParser());
+
+// Session middleware
+app.use(session({
+  secret: process.env.JWT_SECRET || 'fallback-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Rate limiting
 const limiter = rateLimit({

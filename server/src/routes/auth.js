@@ -4,6 +4,11 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const prisma = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
+const githubStrategy = require('../services/github');
+const passport = require('passport');
+
+// Configure passport to use GitHub strategy
+passport.use(githubStrategy);
 
 const router = express.Router();
 
@@ -11,6 +16,35 @@ const router = express.Router();
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
+
+// GitHub OAuth routes
+router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+
+router.get('/github/callback',
+  (req, res, next) => {
+    passport.authenticate('github', (err, user) => {
+      if (err) {
+        console.error('GitHub OAuth error:', err);
+        return res.status(500).json({ error: 'Authentication failed' });
+      }
+      if (!user) {
+        return res.status(401).json({ error: 'Authentication failed' });
+      }
+      
+      // Generate JWT token
+      const token = generateToken(user.id);
+      
+      // Set token in cookie and redirect directly to home page
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 7 * 24 * 60 * 1000 // 7 days
+      });
+      res.redirect(`${frontendUrl}/home`);
+    })(req, res, next);
+  }
+);
 
 // Register
 router.post('/register', [

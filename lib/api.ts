@@ -6,7 +6,7 @@ export interface User {
   id: string;
   name: string;
   username: string;
-  email: string;
+  email?: string; // Made optional
   image?: string;
   bio?: string;
   location?: string;
@@ -80,9 +80,22 @@ class ApiClient {
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
-    // Get token from localStorage if available
+    // Get token from localStorage or cookies if available
     if (typeof window !== 'undefined') {
+      // First check localStorage
       this.token = localStorage.getItem('auth_token');
+      
+      // If not in localStorage, check cookies
+      if (!this.token) {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          const [name, value] = cookie.trim().split('=');
+          if (name === 'auth_token') {
+            this.token = value;
+            break;
+          }
+        }
+      }
     }
   }
 
@@ -90,6 +103,8 @@ class ApiClient {
     this.token = token;
     if (typeof window !== 'undefined') {
       localStorage.setItem('auth_token', token);
+      // Also set token in cookie
+      document.cookie = `auth_token=${token}; path=/; max-age=60480; secure=${process.env.NODE_ENV === 'production' ? 'true' : 'false'}; samesite=lax`;
     }
   }
 
@@ -97,6 +112,8 @@ class ApiClient {
     this.token = null;
     if (typeof window !== 'undefined') {
       localStorage.removeItem('auth_token');
+      // Also clear token from cookie
+      document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; samesite=lax';
     }
   }
 
@@ -111,7 +128,7 @@ class ApiClient {
     };
 
     if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`;
+      (headers as any).Authorization = `Bearer ${this.token}`;
     }
 
     try {
@@ -157,6 +174,17 @@ class ApiClient {
     }
     
     return response;
+  }
+
+  async githubAuth() {
+    // Redirect to GitHub OAuth endpoint
+    window.location.href = `${this.baseUrl}/auth/github`;
+  }
+
+  async githubCallback(token: string, user: User) {
+    // Set token and user after GitHub OAuth
+    this.setToken(token);
+    return { user, token };
   }
 
   async getCurrentUser() {

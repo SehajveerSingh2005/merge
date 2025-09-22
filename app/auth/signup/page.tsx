@@ -1,9 +1,18 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Github, Code2 } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function SignUpPage() {
+  const { githubAuth } = useAuth();
+
+  const handleGitHubAuth = () => {
+    githubAuth();
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -24,7 +33,7 @@ export default function SignUpPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button className="w-full" size="lg">
+            <Button className="w-full" size="lg" onClick={handleGitHubAuth}>
               <Github className="mr-2 h-5 w-5" />
               Sign Up with GitHub
             </Button>

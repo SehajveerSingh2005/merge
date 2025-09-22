@@ -3,8 +3,18 @@ const prisma = require('../config/database');
 
 const authenticateToken = async (req, res, next) => {
   try {
+    let token = null;
+    
+    // Check for token in Authorization header
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    if (authHeader) {
+      token = authHeader.split(' ')[1]; // Bearer TOKEN
+    }
+    
+    // If not in header, check for token in cookies
+    if (!token && req.cookies) {
+      token = req.cookies.auth_token;
+    }
 
     if (!token) {
       return res.status(401).json({ error: 'Access token required' });
@@ -50,8 +60,18 @@ const authenticateToken = async (req, res, next) => {
 
 const optionalAuth = async (req, res, next) => {
   try {
+    let token = null;
+    
+    // Check for token in Authorization header
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    if (authHeader) {
+      token = authHeader.split(' ')[1]; // Bearer TOKEN
+    }
+    
+    // If not in header, check for token in cookies
+    if (!token && req.cookies) {
+      token = req.cookies.auth_token;
+    }
 
     if (token) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);

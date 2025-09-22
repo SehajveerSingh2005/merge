@@ -8,6 +8,8 @@ interface AuthContextType {
     loading: boolean;
     login: (email: string, password: string) => Promise<void>;
     register: (userData: { email: string; password: string; username: string; name: string }) => Promise<void>;
+    githubAuth: () => void;
+    githubCallback: (token: string, user: User) => Promise<void>;
     logout: () => void;
     isAuthenticated: boolean;
 }
@@ -59,6 +61,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const githubAuth = () => {
+        api.githubAuth();
+    };
+
+    const githubCallback = async (token: string, user: User) => {
+        try {
+            console.log('githubCallback called with token:', token);
+            console.log('githubCallback called with user:', user);
+            await api.githubCallback(token, user);
+            console.log('api.githubCallback completed');
+            setUser(user);
+            console.log('setUser completed with user:', user);
+        } catch (error) {
+            console.error('GitHub callback failed:', error);
+            throw error;
+        }
+    };
+
     const logout = () => {
         api.logout();
         setUser(null);
@@ -69,6 +89,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading,
         login,
         register,
+        githubAuth,
+        githubCallback,
         logout,
         isAuthenticated: !!user,
     };
