@@ -2,6 +2,10 @@
 
 A social platform for developers to showcase projects, write blogs, and stay updated with tech news.
 
+<img width="1666" height="1042" alt="image" src="https://github.com/user-attachments/assets/4216a692-661d-48f8-9ac0-d7347d2e24c8" />
+<img width="1666" height="1042" alt="image" src="https://github.com/user-attachments/assets/b412f527-e786-48f4-8550-d484102c5e9e" />
+
+
 ## Features
 
 - **GitHub Integration**: Sign in with GitHub and auto-sync your repositories
