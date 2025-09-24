@@ -7,18 +7,29 @@ A social platform for developers to showcase projects, write blogs, and stay upd
 - **GitHub Integration**: Sign in with GitHub and auto-sync your repositories
 - **Project Showcase**: Display your projects with rich previews and descriptions
 - **Developer Blogs**: Write and share technical articles with markdown support
-- **Tech News Feed**: Stay updated with curated news from Hacker News
+- **Tech News Feed**: Stay updated with curated news from Hacker News, Dev.to, and other sources
 - **Social Features**: Follow developers, like posts, and collaborate on projects
 - **Messaging**: Direct messaging system for collaboration
 - **Notifications**: Get notified about likes, follows, and collaboration requests
+- **User Profiles**: Comprehensive profiles with GitHub integration and activity tracking
+- **Real-time Updates**: Live notifications and feed updates
+- **Content Management**: Create, edit, and manage projects and blog posts
+- **Search & Filtering**: Find users, projects, and content easily
+- **API Endpoints**: RESTful API for all major features
+- **Database Integration**: Full-featured database with Prisma ORM
+- **Authentication & Authorization**: Secure user authentication with role-based access
+- **File Uploads**: Support for profile pictures and content images
 
 ## Tech Stack
 
 - **Frontend**: Next.js 15, TypeScript, Tailwind CSS, shadcn/ui
-- **Backend**: Next.js API Routes, Prisma ORM
-- **Database**: PostgreSQL (Neon)
+- **Backend**: Node.js, Express.js, Next.js API Routes, Prisma ORM
+- **Database**: PostgreSQL (Neon), Prisma Migrate
 - **Authentication**: NextAuth.js with GitHub OAuth
+- **API Services**: GitHub API, Hacker News API, Dev.to API integration
 - **Deployment**: Vercel (recommended)
+- **Development Tools**: Prisma Studio, ESLint, Prettier, Biome
+- **UI Components**: shadcn/ui, custom components
 
 ## Getting Started
 
@@ -90,10 +101,29 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 │   └── messages/          # Direct messaging
 ├── components/            # Reusable components
 │   └── ui/               # shadcn/ui components
+├── contexts/              # React context providers
+├── hooks/                 # Custom React hooks
 ├── lib/                  # Utility functions
 ├── prisma/               # Database schema and migrations
-└── public/               # Static assets
+├── public/               # Static assets
+├── server/               # Backend server implementation
+│   ├── src/
+│   │   ├── config/       # Server configuration
+│   │   ├── middleware/   # Authentication and other middleware
+│   │   ├── routes/       # API route handlers
+│   │   └── services/     # External API integrations (GitHub, Hacker News, Dev.to)
+│   └── prisma/           # Server-side database schema
 ```
+
+## Backend Architecture
+
+The backend is implemented as a separate Node.js/Express.js server with the following components:
+
+- **Routes**: RESTful API endpoints for users, projects, blogs, news, messages, and notifications
+- **Services**: Integration with external APIs including GitHub, Hacker News, and Dev.to
+- **Middleware**: Authentication, authorization, and validation layers
+- **Configuration**: Database connection, environment variables, and security settings
+- **Database**: PostgreSQL with Prisma ORM for type-safe database operations
 
 ## MVP Features Implemented
 
@@ -110,16 +140,16 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Next Steps
 
-1. **Backend Integration**: Connect pages to actual API endpoints
-2. **GitHub API**: Implement real GitHub data fetching
-3. **Hacker News API**: Add real news feed integration
-4. **Authentication**: Set up NextAuth.js with GitHub provider
-5. **Database**: Deploy PostgreSQL and run migrations
-6. **Real-time Features**: Add WebSocket support for messaging
-7. **Search & Filtering**: Implement search functionality
-8. **Content Creation**: Add forms for creating projects and blogs
-9. **File Uploads**: Add image upload for profiles and posts
-10. **Performance**: Add caching and optimization
+1. **Advanced Search**: Implement full-text search across users, projects, and content
+2. **Real-time Features**: Add WebSocket support for live notifications and chat
+3. **Content Creation**: Enhance forms for creating projects and blogs with rich text editor
+4. **File Uploads**: Add image upload for profiles and posts with cloud storage
+5. **Performance**: Add caching and optimization strategies
+6. **Testing**: Implement comprehensive unit and integration tests
+7. **Analytics**: Add user activity tracking and content analytics
+8. **Mobile Responsiveness**: Further optimize for mobile devices
+9. **Accessibility**: Improve accessibility features and compliance
+10. **Advanced User Features**: Add user settings, privacy controls, and account management
 
 ## Contributing
 
