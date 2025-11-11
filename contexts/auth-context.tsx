@@ -39,6 +39,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
 
         checkAuth();
+        
+        // Listen for storage changes to handle token updates from other tabs/pages
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'auth_token') {
+                if (e.newValue) {
+                    // Token was added/updated, fetch user info
+                    api.getCurrentUser()
+                        .then(response => setUser(response.user))
+                        .catch(error => {
+                            console.error('Failed to get user after token update:', error);
+                            api.clearToken();
+                            setUser(null);
+                        });
+                } else {
+                    // Token was removed (logout)
+                    setUser(null);
+                }
+            }
+        };
+        
+        window.addEventListener('storage', handleStorageChange);
+        
+        // Cleanup listener on unmount
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const login = async (email: string, password: string) => {
