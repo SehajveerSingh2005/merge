@@ -113,7 +113,7 @@ class ApiClient {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('auth_token');
       // Also clear token from cookie
-      document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; samesite=lax';
+      document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00 GMT; samesite=lax';
     }
   }
 
@@ -121,6 +121,10 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    // Refresh token from storage before each request to handle cases where
+    // the token was updated outside of this instance (e.g. from auth callback)
+    this.refreshTokenFromStorage();
+    
     const url = `${this.baseUrl}${endpoint}`;
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -148,6 +152,29 @@ class ApiClient {
       throw error;
     }
   }
+  
+  // Method to refresh token from storage (localStorage and cookies)
+  private refreshTokenFromStorage() {
+    if (typeof window !== 'undefined') {
+      // First check localStorage
+      const localStorageToken = localStorage.getItem('auth_token');
+      
+      // If not in localStorage, check cookies
+      let tokenToUse = localStorageToken;
+      if (!tokenToUse) {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          const [name, value] = cookie.trim().split('=');
+          if (name === 'auth_token') {
+            tokenToUse = value;
+            break;
+          }
+        }
+      }
+      
+      this.token = tokenToUse;
+    }
+ }
 
   // Authentication
   async login(email: string, password: string) {
@@ -286,6 +313,68 @@ class ApiClient {
       method: 'PUT',
       body: JSON.stringify(userData),
     });
+  }
+
+  async getGitHubStats(username: string) {
+    // This would fetch GitHub stats from GitHub API
+    try {
+      // Fetch user's basic info from GitHub API
+      const response = await fetch(`https://api.github.com/users/${username}`);
+      if (!response.ok) {
+        throw new Error(`GitHub API request failed with status ${response.status}`);
+      }
+      const data = await response.json();
+      
+      // Fetch user's repositories to get stars and other metrics
+      const reposResponse = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`);
+      if (!reposResponse.ok) {
+        throw new Error(`GitHub API request for repos failed with status ${reposResponse.status}`);
+      }
+      const repos = await reposResponse.json();
+      
+      // Calculate total stars across all repos
+      const totalStars = repos.reduce((sum: number, repo: any) => sum + repo.stargazers_count, 0);
+      
+      // Calculate total forks across all repos as another metric
+      const totalForks = repos.reduce((sum: number, repo: any) => sum + repo.forks_count, 0);
+      
+      // For contributions, GitHub doesn't provide a simple API endpoint for the contribution count
+      // that matches the profile page. The contribution count on the profile page includes
+      // private contributions which are only available to the user themselves.
+      // For public contributions, we can try to estimate using events
+      let contributions = 0;
+      try {
+        // Try to get user's events to estimate contributions
+        const eventsResponse = await fetch(`https://api.github.com/users/${username}/events?per_page=100`);
+        if (eventsResponse.ok) {
+          const events = await eventsResponse.json();
+          // Count programming-related events as contributions
+          const contributionEvents = ['PushEvent', 'PullRequestEvent', 'IssuesEvent', 'CommitCommentEvent',
+                                    'PullRequestReviewEvent', 'PullRequestReviewCommentEvent'];
+          contributions = events.filter((event: any) =>
+            contributionEvents.includes(event.type)
+          ).length;
+        }
+      } catch (eventsError) {
+        console.error('Error fetching user events:', eventsError);
+        // Fallback to 0 contributions if events API fails
+        contributions = 0;
+      }
+      
+      return {
+        publicRepos: data.public_repos || 0,
+        contributions: contributions,
+        stars: totalStars || 0
+      };
+    } catch (error) {
+      console.error('Error fetching GitHub stats:', error);
+      // Return default values if GitHub API call fails
+      return {
+        publicRepos: 0,
+        contributions: 0,
+        stars: 0
+      };
+    }
   }
 
   // Notifications
