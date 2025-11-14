@@ -1,11 +1,15 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Navbar } from "@/components/navbar";
-import { 
-  Code2, 
+import { useApi } from "@/hooks/use-api";
+import { api, Project } from "@/lib/api";
+import {
+  Code2,
   Star,
   GitFork,
   ExternalLink,
@@ -15,111 +19,14 @@ import {
   TrendingUp,
   MessageCircle,
   Github,
-  Play
+  Play,
+  Heart
 } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
-// Enhanced mock projects data
-const mockProjects = [
-  {
-    id: 1,
-    name: "neural-canvas",
-    description: "Interactive neural network visualization tool built with Three.js and WebGL shaders. Real-time training visualization with customizable architectures and beautiful animations.",
-    author: {
-      name: "Sarah Chen",
-      username: "neural_dev",
-      avatar: "/api/placeholder/40/40"
-    },
-    stats: { stars: 2847, forks: 234, watchers: 156, issues: 12 },
-    language: "TypeScript",
-    tags: ["WebGL", "Three.js", "Neural Networks", "Visualization"],
-    updatedAt: "6 hours ago",
-    featured: true,
-    demo: "https://neural-canvas.dev"
-  },
-  {
-    id: 2,
-    name: "quantum-state-manager",
-    description: "State management library inspired by quantum mechanics principles. Superposition meets React in this experimental approach to application state.",
-    author: {
-      name: "Alex Rodriguez",
-      username: "quantum_coder",
-      avatar: "/api/placeholder/40/40"
-    },
-    stats: { stars: 1934, forks: 167, watchers: 89, issues: 8 },
-    language: "JavaScript",
-    tags: ["React", "State Management", "Quantum", "Experimental"],
-    updatedAt: "1 day ago",
-    featured: true,
-    demo: "https://quantum-state.dev"
-  },
-  {
-    id: 3,
-    name: "design-system-kit",
-    description: "Comprehensive design system with React components, design tokens, and documentation. Built for scale with TypeScript and Storybook integration.",
-    author: {
-      name: "Jordan Kim",
-      username: "design_systems_guru",
-      avatar: "/api/placeholder/40/40"
-    },
-    stats: { stars: 1567, forks: 123, watchers: 67, issues: 15 },
-    language: "TypeScript",
-    tags: ["Design System", "React", "Storybook", "Components"],
-    updatedAt: "3 days ago",
-    featured: false,
-    demo: "https://design-kit.dev"
-  },
-  {
-    id: 4,
-    name: "poetic-code-generator",
-    description: "AI-powered code generator that writes code like poetry. Where functionality meets beauty in perfect harmony. Experimental approach to expressive programming.",
-    author: {
-      name: "Maya Patel",
-      username: "code_poet",
-      avatar: "/api/placeholder/40/40"
-    },
-    stats: { stars: 1234, forks: 89, watchers: 45, issues: 6 },
-    language: "Python",
-    tags: ["AI", "Code Generation", "Poetry", "Experimental"],
-    updatedAt: "5 days ago",
-    featured: false,
-    demo: "https://poetic-code.dev"
-  },
-  {
-    id: 5,
-    name: "rust-cli-toolkit",
-    description: "Collection of high-performance command-line tools built with Rust. Fast, reliable, and cross-platform utilities for modern development workflows.",
-    author: {
-      name: "River Chen",
-      username: "rust_evangelist",
-      avatar: "/api/placeholder/40/40"
-    },
-    stats: { stars: 987, forks: 67, watchers: 34, issues: 4 },
-    language: "Rust",
-    tags: ["Rust", "CLI", "Tools", "Performance"],
-    updatedAt: "1 week ago",
-    featured: false,
-    demo: null
-  },
-  {
-    id: 6,
-    name: "micro-animations-lib",
-    description: "Lightweight animation library for micro-interactions. Smooth, performant animations that enhance user experience without bloating your bundle.",
-    author: {
-      name: "Casey Morgan",
-      username: "animation_master",
-      avatar: "/api/placeholder/40/40"
-    },
-    stats: { stars: 756, forks: 45, watchers: 23, issues: 2 },
-    language: "JavaScript",
-    tags: ["Animation", "Micro-interactions", "Performance", "UI"],
-    updatedAt: "2 weeks ago",
-    featured: false,
-    demo: "https://micro-animations.dev"
-  }
-];
-
-const trendingLanguages = [
+// Mock data for trending languages and categories (to be replaced with real API calls)
+const mockTrendingLanguages = [
   { name: "TypeScript", count: 1247, trend: "up" },
   { name: "Rust", count: 892, trend: "up" },
   { name: "Python", count: 756, trend: "stable" },
@@ -128,7 +35,7 @@ const trendingLanguages = [
   { name: "WebAssembly", count: 445, trend: "up" }
 ];
 
-const projectCategories = [
+const mockProjectCategories = [
   { name: "AI & ML", count: 234 },
   { name: "Web Development", count: 567 },
   { name: "Developer Tools", count: 345 },
@@ -138,6 +45,40 @@ const projectCategories = [
 ];
 
 export default function ProjectsPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [sortType, setSortType] = useState<'trending' | 'recent' | 'stars' | 'popular'>('trending');
+  
+  const { data: projectsData, loading, error } = useApi(
+    () => api.getProjects({ 
+      limit: 12, 
+      search: searchQuery, 
+      tag: selectedCategory || undefined,
+      sort: sortType
+    }),
+    [searchQuery, selectedCategory, sortType]
+  );
+
+  const projects = projectsData?.projects || [];
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleCategoryClick = (category: string) => {
+    setSelectedCategory(selectedCategory === category ? null : category);
+  };
+
+  const handleLikeProject = async (projectId: string) => {
+    try {
+      await api.likeProject(projectId);
+      // We would refetch or update the local state here, but for now just refetch
+      // In a real app, you might optimistically update the UI
+    } catch (err) {
+      console.error("Failed to like project:", err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar currentPage="projects" />
@@ -167,14 +108,48 @@ export default function ProjectsPage() {
                     </Button>
                   </div>
                 </div>
-                
+
                 {/* Search */}
                 <div className="relative mb-8">
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary/60" />
-                  <Input 
-                    placeholder="Search projects, languages, topics..." 
+                  <Input
+                    placeholder="Search projects, languages, topics..."
                     className="pl-12 bg-muted/30 border-primary/20 font-light focus:border-primary/40"
+                    value={searchQuery}
+                    onChange={handleSearch}
                   />
+                </div>
+
+                {/* Sort Options */}
+                <div className="flex items-center space-x-6 mb-8">
+                  <Button 
+                    variant={sortType === 'trending' ? 'secondary' : 'ghost'} 
+                    className={`font-light ${sortType === 'trending' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    onClick={() => setSortType('trending')}
+                  >
+                    Trending
+                  </Button>
+                  <Button 
+                    variant={sortType === 'popular' ? 'secondary' : 'ghost'} 
+                    className={`font-light ${sortType === 'popular' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    onClick={() => setSortType('popular')}
+                  >
+                    Popular
+                  </Button>
+                  <Button 
+                    variant={sortType === 'recent' ? 'secondary' : 'ghost'} 
+                    className={`font-light ${sortType === 'recent' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    onClick={() => setSortType('recent')}
+                  >
+                    Recent
+                  </Button>
+                  <Button 
+                    variant={sortType === 'stars' ? 'secondary' : 'ghost'} 
+                    className={`font-light ${sortType === 'stars' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    onClick={() => setSortType('stars')}
+                  >
+                    Most Stars
+                  </Button>
                 </div>
 
                 {/* Filter Tags */}
@@ -183,119 +158,150 @@ export default function ProjectsPage() {
                     Categories:
                   </span>
                   <div className="flex items-center space-x-2">
-                    <Badge variant="outline" className="font-light border-border/30 text-xs cursor-pointer hover:bg-muted/50">
-                      AI & ML
-                    </Badge>
-                    <Badge variant="outline" className="font-light border-border/30 text-xs cursor-pointer hover:bg-muted/50">
-                      Web Development
-                    </Badge>
-                    <Badge variant="outline" className="font-light border-border/30 text-xs cursor-pointer hover:bg-muted/50">
-                      Developer Tools
-                    </Badge>
-                    <Badge variant="outline" className="font-light border-border/30 text-xs cursor-pointer hover:bg-muted/50">
-                      Experimental
-                    </Badge>
+                    {mockProjectCategories.slice(0, 4).map((category) => (
+                      <Badge 
+                        key={category.name} 
+                        variant="outline" 
+                        className={`font-light border-border/30 text-xs cursor-pointer hover:bg-muted/50 ${
+                          selectedCategory === category.name ? 'border-primary/40 text-primary bg-primary/10' : ''
+                        }`}
+                        onClick={() => handleCategoryClick(category.name)}
+                      >
+                        {category.name}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
               </div>
 
               {/* Projects Grid */}
               <div className="space-y-8">
-                {mockProjects.map((project) => (
-                  <Card key={project.id} className="border-primary/20 bg-card/20 hover-lift">
-                    <CardHeader className="pb-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center space-x-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={project.author.avatar} />
-                            <AvatarFallback className="text-xs">{project.author.name[0]}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="text-sm font-light">{project.author.name}</p>
-                            <p className="text-xs text-muted-foreground font-mono">@{project.author.username}</p>
+                {loading ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <Card key={i} className="border-primary/20 bg-card/30">
+                      <CardHeader className="pb-4">
+                        <div className="flex items-center space-x-3 mb-4">
+                          <div className="h-8 w-8 bg-muted rounded-full animate-pulse" />
+                          <div className="space-y-2">
+                            <div className="h-4 w-24 bg-muted rounded animate-pulse" />
+                            <div className="h-3 w-16 bg-muted rounded animate-pulse" />
                           </div>
                         </div>
-                        <div className="flex items-center space-x-3">
-                          {project.featured && (
-                            <Badge variant="outline" className="font-light border-primary/40 text-primary text-xs uppercase tracking-[0.1em]">
-                              Featured
+                        <div className="h-6 w-3/4 bg-muted rounded animate-pulse mb-3" />
+                        <div className="space-y-2">
+                          <div className="h-4 w-full bg-muted rounded animate-pulse" />
+                          <div className="h-4 w-2/3 bg-muted rounded animate-pulse" />
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  ))
+                ) : error ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground">Failed to load projects: {error}</p>
+                  </div>
+                ) : projects.length > 0 ? (
+                  projects.map((project) => (
+                    <Card key={project.id} className="border-primary/20 bg-card/20 hover-lift">
+                      <CardHeader className="pb-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={project.author.image || "/api/placeholder/40/40"} />
+                              <AvatarFallback className="text-xs">{project.author.name[0]}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="text-sm font-light">{project.author.name}</p>
+                              <p className="text-xs text-muted-foreground font-mono">@{project.author.username}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            {project.featured && (
+                              <Badge variant="outline" className="font-light border-primary/40 text-primary text-xs uppercase tracking-[0.1em]">
+                                Featured
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-xl font-light mb-3 hover:text-primary cursor-pointer transition-colors flex items-center space-x-2">
+                              <Code2 className="h-5 w-5" />
+                              <span>{project.name}</span>
+                            </CardTitle>
+                            <CardDescription className="text-sm font-light text-muted-foreground story-text leading-relaxed">
+                              {project.description}
+                            </CardDescription>
+                          </div>
+                          <div className="flex items-center space-x-2 ml-6">
+                            {project.demoUrl && (
+                              <Button variant="outline" size="sm" className="font-light">
+                                <Play className="mr-2 h-3 w-3" />
+                                Demo
+                              </Button>
+                            )}
+                            {project.githubUrl && (
+                              <Button variant="ghost" size="sm">
+                                <Github className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </CardHeader>
+
+                      <CardContent>
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center space-x-2">
+                            {project.tags.slice(0, 4).map((tag) => (
+                              <Badge key={tag} variant="outline" className="font-light border-border/30 text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+
+                          <div className="flex items-center space-x-4 text-xs text-muted-foreground font-mono">
+                            <div className="flex items-center space-x-1">
+                              <Star className="h-3 w-3" />
+                              <span>{project.stars.toLocaleString()}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <GitFork className="h-3 w-3" />
+                              <span>{project.forks}</span>
+                            </div>
+                            <Badge variant="outline" className="font-light border-border/30 text-xs">
+                              {project.language || 'N/A'}
                             </Badge>
-                          )}
-                          <span className="text-xs text-muted-foreground font-mono">{project.updatedAt}</span>
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-xl font-light mb-3 hover:text-primary cursor-pointer transition-colors flex items-center space-x-2">
-                            <Code2 className="h-5 w-5" />
-                            <span>{project.name}</span>
-                          </CardTitle>
-                          <CardDescription className="text-sm font-light text-muted-foreground story-text leading-relaxed">
-                            {project.description}
-                          </CardDescription>
-                        </div>
-                        <div className="flex items-center space-x-2 ml-6">
-                          {project.demo && (
-                            <Button variant="outline" size="sm" className="font-light">
-                              <Play className="mr-2 h-3 w-3" />
-                              Demo
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="font-light" 
+                              onClick={() => handleLikeProject(project.id)}
+                            >
+                              <Heart className="mr-2 h-3 w-3" />
+                              {project._count?.likes || 0}
                             </Button>
-                          )}
-                          <Button variant="ghost" size="sm">
-                            <Github className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    
-                    <CardContent>
-                      <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center space-x-2">
-                          {project.tags.slice(0, 4).map((tag) => (
-                            <Badge key={tag} variant="outline" className="font-light border-border/30 text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                        
-                        <div className="flex items-center space-x-4 text-xs text-muted-foreground font-mono">
-                          <div className="flex items-center space-x-1">
-                            <Star className="h-3 w-3" />
-                            <span>{project.stats.stars.toLocaleString()}</span>
+                            <Button variant="ghost" size="sm" className="font-light">
+                              <MessageCircle className="mr-2 h-3 w-3" />
+                              {project._count?.comments || 0}
+                            </Button>
+                            <Button variant="ghost" size="sm" className="font-light">
+                              <ExternalLink className="h-3 w-3" />
+                            </Button>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            <GitFork className="h-3 w-3" />
-                            <span>{project.stats.forks}</span>
-                          </div>
-                          <Badge variant="outline" className="font-light border-border/30 text-xs">
-                            {project.language}
-                          </Badge>
                         </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <Button variant="ghost" size="sm" className="font-light">
-                            <Star className="mr-2 h-3 w-3" />
-                            Star
-                          </Button>
-                          <Button variant="ghost" size="sm" className="font-light">
-                            <GitFork className="mr-2 h-3 w-3" />
-                            Fork
-                          </Button>
-                          <Button variant="ghost" size="sm" className="font-light">
-                            <MessageCircle className="mr-2 h-3 w-3" />
-                            Discuss
-                          </Button>
-                        </div>
-                        <Button variant="ghost" size="sm" className="font-light">
-                          <ExternalLink className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground">No projects found. Try adjusting your search or filters.</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -311,7 +317,7 @@ export default function ProjectsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {trendingLanguages.map((lang, index) => (
+                    {mockTrendingLanguages.map((lang, index) => (
                       <div key={lang.name} className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <span className="text-xs font-mono text-muted-foreground w-4">
@@ -344,9 +350,14 @@ export default function ProjectsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {projectCategories.map((category) => (
+                    {mockProjectCategories.map((category) => (
                       <div key={category.name} className="flex items-center justify-between">
-                        <p className="text-sm font-light cursor-pointer hover:text-primary transition-colors">
+                        <p 
+                          className={`text-sm font-light cursor-pointer hover:text-primary transition-colors ${
+                            selectedCategory === category.name ? 'text-primary' : ''
+                          }`}
+                          onClick={() => handleCategoryClick(category.name)}
+                        >
                           {category.name}
                         </p>
                         <span className="text-xs text-muted-foreground font-mono">
@@ -355,6 +366,23 @@ export default function ProjectsPage() {
                       </div>
                     ))}
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Following Section */}
+              <Card className="border-primary/20 bg-card/20">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-light">From Your Network</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm font-light text-muted-foreground mb-4">
+                    Projects from users you follow
+                  </p>
+                  <Button variant="outline" className="w-full font-light" asChild>
+                    <Link href="/projects?following=true">
+                      View Projects
+                    </Link>
+                  </Button>
                 </CardContent>
               </Card>
 
