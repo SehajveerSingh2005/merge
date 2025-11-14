@@ -53,14 +53,7 @@ export function Navbar({ currentPage }: NavbarProps) {
             >
               Projects
             </Link>
-            <Link 
-              href="/insights" 
-              className={`text-xs font-light uppercase tracking-[0.15em] transition-colors ${
-                currentPage === 'insights' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Explore
-            </Link>
+
           </nav>
           
           <div className="flex items-center space-x-6">
@@ -84,23 +77,27 @@ export function Navbar({ currentPage }: NavbarProps) {
                   <Bell className="h-4 w-4" />
                   <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></div>
                 </Button>
-                <Button variant="ghost" size="sm" onClick={logout}>
-                  <Settings className="h-4 w-4" />
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/settings">
+                    <Settings className="h-4 w-4" />
+                  </Link>
                 </Button>
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.image || "/api/placeholder/32/32"} />
-                  <AvatarFallback className="text-xs">
-                    {user?.name?.[0] || user?.username?.[0] || "U"}
-                  </AvatarFallback>
-                </Avatar>
+                <Link href="/profile">
+                  <Avatar className="h-8 w-8 cursor-pointer">
+                    <AvatarImage src={user?.image || "/api/placeholder/32/32"} />
+                    <AvatarFallback className="text-xs">
+                      {user?.name?.[0] || user?.username?.[0] || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
               </>
             ) : (
               <div className="flex items-center space-x-4">
                 <Button variant="ghost" size="sm" className="font-light" asChild>
-                  <Link href="/login">Sign in</Link>
+                  <Link href="/auth/signin">Sign in</Link>
                 </Button>
                 <Button size="sm" className="font-light bg-primary text-primary-foreground" asChild>
-                  <Link href="/register">Sign up</Link>
+                  <Link href="/auth/signup">Sign up</Link>
                 </Button>
               </div>
             )}
