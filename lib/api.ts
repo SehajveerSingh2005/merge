@@ -318,26 +318,41 @@ class ApiClient {
   async getGitHubStats(username: string) {
     // This would fetch GitHub stats from GitHub API
     try {
+      // Construct the API URL with parameters
+      const headers: HeadersInit = {
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'Merge-App'
+      };
+
+      // Check if we have a GitHub token in localStorage
+      const githubToken = typeof window !== 'undefined'
+        ? localStorage.getItem('github_token')
+        : undefined;
+
+      if (githubToken) {
+        headers['Authorization'] = `token ${githubToken}`;
+      }
+
       // Fetch user's basic info from GitHub API
-      const response = await fetch(`https://api.github.com/users/${username}`);
+      const response = await fetch(`https://api.github.com/users/${username}`, { headers });
       if (!response.ok) {
         throw new Error(`GitHub API request failed with status ${response.status}`);
       }
       const data = await response.json();
-      
+
       // Fetch user's repositories to get stars and other metrics
-      const reposResponse = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`);
+      const reposResponse = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`, { headers });
       if (!reposResponse.ok) {
         throw new Error(`GitHub API request for repos failed with status ${reposResponse.status}`);
       }
       const repos = await reposResponse.json();
-      
+
       // Calculate total stars across all repos
       const totalStars = repos.reduce((sum: number, repo: any) => sum + repo.stargazers_count, 0);
-      
+
       // Calculate total forks across all repos as another metric
       const totalForks = repos.reduce((sum: number, repo: any) => sum + repo.forks_count, 0);
-      
+
       // For contributions, GitHub doesn't provide a simple API endpoint for the contribution count
       // that matches the profile page. The contribution count on the profile page includes
       // private contributions which are only available to the user themselves.
@@ -345,7 +360,7 @@ class ApiClient {
       let contributions = 0;
       try {
         // Try to get user's events to estimate contributions
-        const eventsResponse = await fetch(`https://api.github.com/users/${username}/events?per_page=100`);
+        const eventsResponse = await fetch(`https://api.github.com/users/${username}/events?per_page=100`, { headers });
         if (eventsResponse.ok) {
           const events = await eventsResponse.json();
           // Count programming-related events as contributions
@@ -360,11 +375,14 @@ class ApiClient {
         // Fallback to 0 contributions if events API fails
         contributions = 0;
       }
-      
+
       return {
         publicRepos: data.public_repos || 0,
         contributions: contributions,
-        stars: totalStars || 0
+        stars: totalStars || 0,
+        totalForks: totalForks || 0,
+        followers: data.followers || 0,
+        following: data.following || 0
       };
     } catch (error) {
       console.error('Error fetching GitHub stats:', error);
@@ -372,7 +390,10 @@ class ApiClient {
       return {
         publicRepos: 0,
         contributions: 0,
-        stars: 0
+        stars: 0,
+        totalForks: 0,
+        followers: 0,
+        following: 0
       };
     }
   }
@@ -398,6 +419,13 @@ class ApiClient {
     return this.request('/notifications/read-all', {
       method: 'PUT',
     });
+  }
+
+  // Add method to set GitHub token
+  setGitHubToken(token: string) {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('github_token', token);
+    }
   }
 
   // Messages
