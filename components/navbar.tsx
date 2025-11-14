@@ -53,14 +53,7 @@ export function Navbar({ currentPage }: NavbarProps) {
             >
               Projects
             </Link>
-            <Link 
-              href="/insights" 
-              className={`text-xs font-light uppercase tracking-[0.15em] transition-colors ${
-                currentPage === 'insights' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Explore
-            </Link>
+
           </nav>
           
           <div className="flex items-center space-x-6">
