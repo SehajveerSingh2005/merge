@@ -8,31 +8,68 @@ const router = express.Router();
 // Get all projects
 router.get('/', optionalAuth, async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, tag, featured } = req.query;
+    const { page = 1, limit = 10, search, tag, featured, sort, following } = req.query;
     const skip = (page - 1) * limit;
 
     const where = {};
-    
+
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } }
       ];
     }
-    
+
     if (tag) {
       where.tags = { has: tag };
     }
-    
+
     if (featured === 'true') {
       where.featured = true;
+    }
+
+    // If user wants projects from users they follow
+    if (req.user && following === 'true') {
+      const userFollowing = await prisma.follow.findMany({
+        where: { followerId: req.user.id },
+        select: { followingId: true }
+      });
+      
+      const followingIds = userFollowing.map(f => f.followingId);
+      
+      if (followingIds.length > 0) {
+        where.authorId = { in: followingIds };
+      } else {
+        // If user follows no one, return empty result
+        where.id = { equals: 'nonexistent' }; // This will result in no matches
+      }
+    }
+
+    // Determine the sort order
+    let orderBy = { createdAt: 'desc' }; // default
+    
+    if (sort === 'trending' || sort === 'popular') {
+      // Sort by a combination of likes, comments, and recency
+      // For now, we'll use a basic approach sorting by likes count and then creation date
+      orderBy = [
+        {
+          _count: {
+            likes: 'desc'
+          }
+        },
+        { createdAt: 'desc' }
+      ];
+    } else if (sort === 'recent') {
+      orderBy = { createdAt: 'desc' };
+    } else if (sort === 'stars') {
+      orderBy = { stars: 'desc' };
     }
 
     const projects = await prisma.project.findMany({
       where,
       skip,
       take: parseInt(limit),
-      orderBy: { createdAt: 'desc' },
+      orderBy,
       include: {
         author: {
           select: {
@@ -142,9 +179,9 @@ router.post('/', authenticateToken, [
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        error: 'Validation failed', 
-        details: errors.array() 
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array()
       });
     }
 
@@ -191,9 +228,9 @@ router.put('/:id', authenticateToken, [
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        error: 'Validation failed', 
-        details: errors.array() 
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array()
       });
     }
 
