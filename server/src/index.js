@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const session = require('express-session');
 require('dotenv').config();
 
+const { connectRedis } = require('./config/redis');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const projectRoutes = require('./routes/projects');
@@ -41,12 +42,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Rate limiting
-const limiter = rateLimit({
+const { createRateLimiter } = require('./middleware/rateLimiter');
+
+const rateLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.'
 });
-app.use('/api/', limiter);
+app.use('/api/', rateLimiter);
 
 // CORS configuration
 app.use(cors({
@@ -113,7 +116,14 @@ app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  
+
+  try {
+    // Connect to Redis
+    await connectRedis();
+  } catch (error) {
+    console.error('Failed to connect to Redis:', error);
+  }
+
   // Start content syncing in development
   if (process.env.NODE_ENV !== 'production') {
     console.log('🔥 Starting content integrations...');

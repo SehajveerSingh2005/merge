@@ -2,11 +2,13 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const prisma = require('../config/database');
 const { authenticateToken, optionalAuth } = require('../middleware/auth');
+const { cacheMiddleware } = require('../middleware/cache');
+const { invalidateCacheByPattern } = require('../utils/redisUtils');
 
 const router = express.Router();
 
 // Get all projects
-router.get('/', optionalAuth, async (req, res) => {
+router.get('/', optionalAuth, cacheMiddleware(300), async (req, res) => { // Cache for 5 minutes
   try {
     const { page = 1, limit = 10, search, tag, featured, sort, following } = req.query;
     const skip = (page - 1) * limit;
@@ -106,7 +108,7 @@ router.get('/', optionalAuth, async (req, res) => {
 });
 
 // Get single project
-router.get('/:id', optionalAuth, async (req, res) => {
+router.get('/:id', optionalAuth, cacheMiddleware(600), async (req, res) => { // Cache for 10 minutes
   try {
     const project = await prisma.project.findUnique({
       where: { id: req.params.id },
@@ -209,6 +211,9 @@ router.post('/', authenticateToken, [
       }
     });
 
+    // Invalidate project cache after creation
+    await invalidateCacheByPattern('cache:/api/projects*');
+
     res.status(201).json({ project });
   } catch (error) {
     console.error('Create project error:', error);
@@ -262,6 +267,10 @@ router.put('/:id', authenticateToken, [
       }
     });
 
+    // Invalidate project cache after update
+    await invalidateCacheByPattern('cache:/api/projects*');
+    await invalidateCacheByPattern(`cache:/api/projects/${req.params.id}*`);
+
     res.json({ project });
   } catch (error) {
     console.error('Update project error:', error);
@@ -299,6 +308,11 @@ router.post('/:id/like', authenticateToken, async (req, res) => {
       await prisma.like.delete({
         where: { id: existingLike.id }
       });
+
+      // Invalidate project cache after unlike
+      await invalidateCacheByPattern('cache:/api/projects*');
+      await invalidateCacheByPattern(`cache:/api/projects/${projectId}*`);
+
       res.json({ liked: false, message: 'Project unliked' });
     } else {
       // Like
@@ -308,6 +322,11 @@ router.post('/:id/like', authenticateToken, async (req, res) => {
           projectId
         }
       });
+
+      // Invalidate project cache after like
+      await invalidateCacheByPattern('cache:/api/projects*');
+      await invalidateCacheByPattern(`cache:/api/projects/${projectId}*`);
+
       res.json({ liked: true, message: 'Project liked' });
     }
   } catch (error) {

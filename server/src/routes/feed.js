@@ -1,11 +1,12 @@
 const express = require('express');
 const prisma = require('../config/database');
 const { optionalAuth } = require('../middleware/auth');
+const { cacheMiddleware } = require('../middleware/cache');
 
 const router = express.Router();
 
 // Get feed items (projects, blog posts, news)
-router.get('/', optionalAuth, async (req, res) => {
+router.get('/', optionalAuth, cacheMiddleware(300), async (req, res) => { // Cache for 5 minutes
   try {
     const { page = 1, limit = 10, type } = req.query;
     const skip = (page - 1) * limit;
@@ -200,14 +201,10 @@ router.get('/', optionalAuth, async (req, res) => {
       // Apply pagination to the sorted mixed feed
       const totalMixedItems = feedItems.length;
       feedItems = feedItems.slice(skip, skip + requestedLimit);
-      
-      console.log(`📊 Mixed feed: ${totalMixedItems} total items, returning ${feedItems.length} (page ${page}, skip ${skip})`);
-      
+
       // Store hasMore for mixed feed
       var mixedHasMore = skip + requestedLimit < totalMixedItems;
     }
-
-    console.log(`📊 Feed API: Returning ${feedItems.length} items (requested: ${requestedLimit}, type: ${type || 'mixed'})`);
 
     // Add time ago and featured status
     feedItems = feedItems.map(item => ({
@@ -235,7 +232,7 @@ router.get('/', optionalAuth, async (req, res) => {
 });
 
 // Get trending tags
-router.get('/trending', async (req, res) => {
+router.get('/trending', cacheMiddleware(1800), async (req, res) => { // Cache for 30 minutes
   try {
     // Get tags from projects and blog posts
     const projects = await prisma.project.findMany({
