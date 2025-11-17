@@ -54,7 +54,7 @@ The core vision is to create a developer-centric social network that values tech
 - **NextAuth.js**: Authentication library supporting multiple providers
 
 ### External API Integrations
-- **GitHub API**: For user authentication, repository data, and profile information
+- **GitHub API**: For user authentication, repository data, profile information, and repository import functionality
 - **Hacker News API**: For fetching and displaying tech news
 - **Dev.to API**: For integrating with the developer community blog platform
 
@@ -90,6 +90,14 @@ The core vision is to create a developer-centric social network that values tech
 - Like and comment functionality on posts
 - Direct messaging for private communication
 - Notification system for updates and interactions
+
+### Project Features
+- Project showcase with rich previews and detailed information
+- Search and filtering capabilities for projects
+- Project sharing feature to add your own projects (via GitHub integration or URL)
+- GitHub repository import functionality
+- Project tagging and categorization
+- Demo URL and GitHub link support
 
 ### News & Information
 - Curated tech news from multiple sources
