@@ -10,6 +10,7 @@ A social platform for developers to showcase projects, write blogs, and stay upd
 
 - **GitHub Integration**: Sign in with GitHub and auto-sync your repositories
 - **Project Showcase**: Display your projects with rich previews and descriptions
+- **Project Sharing**: Share your own projects with the community via URL import or GitHub integration
 - **Developer Blogs**: Write and share technical articles with markdown support
 - **Tech News Feed**: Stay updated with curated news from Hacker News, Dev.to, and other sources
 - **Social Features**: Follow developers, like posts, and collaborate on projects
@@ -135,7 +136,8 @@ The backend is implemented as a separate Node.js/Express.js server with the foll
 - [x] GitHub OAuth authentication flow
 - [x] Home feed with news, featured projects, and blogs
 - [x] User profiles with GitHub integration
-- [x] Project showcase pages
+- [x] Project showcase pages with search and filtering
+- [x] Project sharing feature (import from GitHub or add via URL)
 - [x] Blog listing and reading
 - [x] Notifications system
 - [x] Basic messaging interface
