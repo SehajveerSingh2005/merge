@@ -43,25 +43,6 @@ export default function SignInPage() {
               Continue with GitHub
             </Button>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-primary/20" />
-              </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="bg-card px-2 text-muted-foreground font-light">or</span>
-              </div>
-            </div>
-
-            <Button 
-              variant="outline" 
-              className="w-full font-light border-primary/30 hover:bg-primary/10"
-              asChild
-            >
-              <Link href="/login">
-                <Code2 className="mr-2 h-4 w-4" />
-                Email
-              </Link>
-            </Button>
             
             <div className="text-center text-sm font-light text-muted-foreground/80">
               By signing in, you agree to our Terms and Privacy Policy
