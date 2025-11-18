@@ -64,6 +64,28 @@ The core vision is to create a developer-centric social network that values tech
 - **Prettier**: Code formatter for consistent code style
 - **Prisma Studio**: Visual database browser and editor
 
+### Real-time Communication
+- **WebSocket Integration**: Socket.IO-based real-time communication with:
+  - **Client-side Management**: React hook for easy WebSocket integration (`useWebSocket`)
+  - **Event Handling**: Dedicated handlers for project updates, likes, comments, and notifications
+  - **Authentication**: Secure authentication via handshake and post-connection authentication
+  - **Connection Management**: Automatic reconnection with exponential backoff
+  - **Error Handling**: Comprehensive error handling and fallback mechanisms
+  - **Event-driven Architecture**: Separate event channels for different notification types
+- **Server-side Integration**: Node.js Socket.IO server with:
+  - **User Rooms**: Individual user rooms for targeted notifications
+  - **Event Broadcasting**: Real-time event emission for project and social activities
+  - **Authentication Middleware**: Secure user identification and authentication
+
+### Performance & Caching
+- **Redis**: In-memory data structure store with:
+  - **API Response Caching**: Dynamic caching of API responses with configurable TTL (5-10 minutes for projects, 30 minutes for trending tags)
+  - **Rate Limiting**: Advanced IP-based rate limiting with Redis backend for distributed systems
+  - **Cache Invalidation**: Smart cache invalidation on data changes (create/update/like projects)
+  - **Performance Optimization**: Significant reduction in database load and API response times
+  - **Cache Patterns**: Pattern-based cache invalidation for related resources
+  - **Backend Integration**: Middleware-based caching system integrated with Express.js routes
+
 ### Deployment & Infrastructure
 - **Vercel**: Recommended platform for deploying Next.js applications
 - **Neon**: Modern serverless PostgreSQL platform
@@ -87,9 +109,10 @@ The core vision is to create a developer-centric social network that values tech
 
 ### Social Features
 - Following system for connecting with other developers
-- Like and comment functionality on posts
+- Like and comment functionality on posts with real-time notifications
 - Direct messaging for private communication
-- Notification system for updates and interactions
+- Real-time notification system for updates and interactions
+- Live social feedback via WebSocket connections
 
 ### Project Features
 - Project showcase with rich previews and detailed information
@@ -105,8 +128,11 @@ The core vision is to create a developer-centric social network that values tech
 - Trending content and discussions
 
 ### Real-time Features
-- Live notifications
-- Real-time messaging
+- Live notifications for project updates, likes, comments, and follows
+- WebSocket-based real-time communication system
+- Automatic reconnection and fallback handling
+- Project-specific notification system for creators and followers
+- Real-time social interactions (likes, comments, follows)
 - Activity feeds
 
 ## Database Schema

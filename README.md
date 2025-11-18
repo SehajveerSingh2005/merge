@@ -17,13 +17,23 @@ A social platform for developers to showcase projects, write blogs, and stay upd
 - **Messaging**: Direct messaging system for collaboration
 - **Notifications**: Get notified about likes, follows, and collaboration requests
 - **User Profiles**: Comprehensive profiles with GitHub integration and activity tracking
-- **Real-time Updates**: Live notifications and feed updates
+- **Real-time Updates**: Live notifications and feed updates with WebSocket integration
 - **Content Management**: Create, edit, and manage projects and blog posts
 - **Search & Filtering**: Find users, projects, and content easily
 - **API Endpoints**: RESTful API for all major features
 - **Database Integration**: Full-featured database with Prisma ORM
 - **Authentication & Authorization**: Secure user authentication with role-based access
 - **File Uploads**: Support for profile pictures and content images
+- **WebSocket Integration**: Real-time communication for:
+  - **Project Notifications**: Instant notifications when users create or update projects
+  - **Social Interactions**: Real-time likes, comments, and follows on projects
+  - **Connection Management**: Automatic reconnection handling with fallback strategies
+  - **Event-driven Architecture**: Comprehensive event system for different notification types
+- **Caching & Performance**: Redis integration with:
+  - **API Response Caching**: Dynamic caching of API responses with configurable TTL (5-10 minutes for projects, 30 minutes for trending tags)
+  - **Rate Limiting**: Advanced IP-based rate limiting with Redis backend for distributed systems
+  - **Cache Invalidation**: Smart cache invalidation on data changes (create/update/like projects)
+  - **Performance Optimization**: Significant reduction in database load and API response times
 
 ## Tech Stack
 
